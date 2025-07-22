@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Lexend';
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+button{
+  font-family: 'Lexend';
+  background-color: #46BFBB;
+  border: none;
+  border-radius: 15px;
+  color: #333;
+}
+
+.deckName {
+  font-family: 'Lexend';
+  border: none;
+  border-radius: 15px;
+  color: #333;
+}
+
+.deckLabel {
+  background-color: transparent
+}
