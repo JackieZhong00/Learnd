@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.StudyAccell</groupId>
-	<artifactId>StudyAccell</artifactId>
+	<artifactId>LearndMain</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>StudyAccell</name>
 	<description>Web App for efficient spaced learning with added AI features and distraction control features</description>
@@ -90,3 +90,4 @@
 	</build>
 
 </project>
+
