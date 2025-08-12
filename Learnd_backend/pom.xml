@@ -8,12 +8,19 @@
 		<version>3.3.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.StudyAccell</groupId>
-	<artifactId>LearndMain</artifactId>
+	<groupId>com.learnd</groupId>
+	<artifactId>learnd</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>StudyAccell</name>
+	<name>learnd</name>
 	<description>Web App for efficient spaced learning with added AI features and distraction control features</description>
 	<url/>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>integration</module>
+		<module>learnd_main</module>
+	</modules>
+
 	<licenses>
 		<license/>
 	</licenses>
@@ -78,6 +85,7 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
 	</dependencies>
 
 	<build>

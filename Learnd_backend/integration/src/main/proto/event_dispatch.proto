@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+//package proto;
+option java_multiple_files = true;
+option java_package = "com.learnd.integration.grpc";
+option java_outer_classname = "EventDispatcherProto";
+option objc_class_prefix = "RTG";
+
+service EventDispatcher {
+  rpc DispatchCardUpdates (BatchMessageGRPC) returns (DispatchResultGRPC);
+}
+
+
+message CardUpdateEventGRPC {
+  string updateType = 1;
+  int64 cardId = 2;
+  int64 deckId = 3;
+  int64 userId = 4;
+  bool isMultipleChoice = 5;
+  string question = 6;
+  repeated string answer = 7;
+}
+
+message RecommendFeedbackEventGRPC {
+  bool wasAccepted = 1;
+  int64 userId = 2;
+  int64 deckId = 3;
+  string question = 4;
+  repeated string answer = 5;
+  bool isMultipleChoice = 6;
+
+}
+
+message BatchMessageGRPC{
+  int64 userId = 1;
+  int64 deckId = 2;
+  string deckName = 3;
+  repeated string categories = 4;
+  repeated CardUpdateEventGRPC cardUpdate = 5;
+  repeated RecommendFeedbackEventGRPC  feedback = 6;
+}
+
+
+message DispatchResultGRPC {
+  bool success = 1;
+  string question = 2;
+  repeated string answer = 3;
+}
+
