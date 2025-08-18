@@ -5,16 +5,17 @@ import event_dispatcher_pb2_grpc
 from rag import *
 
 class EventDispatcherServicer(event_dispatcher_pb2_grpc.EventDispatcherServicer):
-    def dispatchCardUpdates(self, request, context):
+    def DispatchCardUpdates(self, request, context):
         print("Received request:")
         print(request)
         result = compile_graph(request)
 
-        return event_dispatcher_pb2.DispatchResultGRPC(
+        responseObj = event_dispatcher_pb2.DispatchResultGRPC(
             success = True,
             question=result.question,
             answer=result.answer
         )
+        return responseObj
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
