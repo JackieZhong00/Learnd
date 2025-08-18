@@ -115,4 +115,7 @@ public class UserService {
         return ResponseEntity.ok().build();
     }
 
+    public Integer getUserId(String username) {
+        return userRepository.findIdByUsername(username).orElseThrow();
+    }
 }

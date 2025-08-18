@@ -33,11 +33,11 @@ public class RagGrpcClient {
     public DispatchResultGRPC send(BatchMessageGRPC batchMessage) {
         try {
             return blockingStub.dispatchCardUpdates(batchMessage);
-        } catch (StatusRuntimeException e){
+        } catch (StatusRuntimeException e) {
             System.out.println("couldn't make grpc call");
             System.out.println("exception message: " + e.getMessage());
+            throw new RuntimeException("couldn't make grpc call");
         }
-        throw new RuntimeException("couldn't make grpc call");
     };
 }
 

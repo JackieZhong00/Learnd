@@ -18,6 +18,16 @@ public class CardUpdateEvent {
     public CardUpdateEvent() {
 
     }
+    public CardUpdateEvent(String updateType, int cardId, int deckId, int userId, boolean isMultipleChoice,
+                           String question, List<String> answer) {
+        this.updateType = updateType;
+        this.cardId = cardId;
+        this.deckId = deckId;
+        this.userId = userId;
+        this.isMultipleChoice = isMultipleChoice;
+        this.question = question;
+        this.answer = answer;
+    }
 
 
     public boolean getIsMultipleChoice() {

@@ -44,6 +44,9 @@ public class Deck {
     public Set<String> getListOfCategories() {
         return listOfCategories;
     }
+    public User getUser() {
+        return user;
+    }
 
     public int getId() {
         return this.id;

@@ -1,6 +1,5 @@
 package com.learnd.learnd_main.Learnd.security;
 
-import com.learnd.learnd_main.Learnd.service.CustomOAuth2Service;
 import com.learnd.learnd_main.Learnd.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,12 +21,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final JwtFilter jwtFilter;
-    private final CustomOAuth2Service customOAuth2Service;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtFilter jwtFilter, CustomOAuth2Service customOAuth2Service) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
         this.userDetailsService = userDetailsService;
-        this.customOAuth2Service = customOAuth2Service;
     }
 
 

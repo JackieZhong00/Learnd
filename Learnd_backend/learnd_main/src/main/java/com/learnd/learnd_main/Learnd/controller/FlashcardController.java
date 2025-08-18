@@ -1,5 +1,7 @@
 package com.learnd.learnd_main.Learnd.controller;
 
+import com.learnd.integration.kafka.model.CardUpdateEvent;
+import com.learnd.integration.kafka.producer.MessageProducer;
 import com.learnd.learnd_main.Learnd.model.Deck;
 import com.learnd.learnd_main.Learnd.model.Flashcard;
 import com.learnd.learnd_main.Learnd.model.FlashcardDTO;
@@ -25,19 +27,30 @@ public class FlashcardController {
     private final FlashcardService flashcardService;
     private final DeckService deckService;
     private final FlashcardRepository flashcardRepository;
+    private final MessageProducer messageProducer;
 
-    public FlashcardController(FlashcardService flashcardService, DeckService deckService, FlashcardRepository flashcardRepository) {
+    public FlashcardController(FlashcardService flashcardService, DeckService deckService,
+                               FlashcardRepository flashcardRepository, MessageProducer messageProducer) {
         this.flashcardService = flashcardService;
         this.deckService = deckService;
         this.flashcardRepository = flashcardRepository;
+        this.messageProducer = messageProducer;
     }
 
     @PostMapping("/{deckId}/createcard")
-    public FlashcardDTO createCard(@PathVariable int deckId, @RequestBody FlashcardSubmitRequest card, HttpServletResponse request) {
+    public FlashcardDTO createCard(@PathVariable int deckId, @RequestBody FlashcardSubmitRequest card) {
         //get Deck associated with Deck name and set the card's deck variable to this deck object before saving the card
         Deck deck = deckService.getDeckById(deckId);
         Flashcard flashcard = new Flashcard(card.getQuestion(), card.getAnswer());
         flashcard.setDeck(deck);
+        Flashcard createdCard = flashcardService.save(flashcard);
+        List<String> answers = new ArrayList<>();
+        answers.add(createdCard.getAnswer());
+        CardUpdateEvent event = new CardUpdateEvent("create", createdCard.getId(), deck.getId(),
+                deck.getUser().getId(), false, createdCard.getQuestion(), answers);
+
+        messageProducer.sendCardUpdateMsg("create", event);
+
         return new FlashcardDTO(flashcardService.save(flashcard));
     }
 
