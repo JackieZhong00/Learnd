@@ -141,7 +141,7 @@ def index_generated_cluster(cluster_document):
         chunk_overlap=50)
     splits = text_splitter.split_documents(cluster_document)
     vectorstore = Chroma.from_documents(documents=splits, embedding=OpenAIEmbeddings())
-    store_cluster_with_user_id(cluster_document.page_content, cluster_document.metaData["userId"])
+    store_cluster_with_user_id(cluster_document.page_content, cluster_document.metadata["deckId"])
     return vectorstore
 
 
