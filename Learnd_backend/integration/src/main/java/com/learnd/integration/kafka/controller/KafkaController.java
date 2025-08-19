@@ -1,6 +1,7 @@
 package com.learnd.integration.kafka.controller;
 
 import com.learnd.integration.kafka.consumer.MessageConsumer;
+import com.learnd.integration.kafka.enums.KafkaTopic;
 import com.learnd.integration.kafka.model.CardUpdateEvent;
 import com.learnd.integration.kafka.model.RecommendFeedbackEvent;
 import com.learnd.integration.kafka.producer.MessageProducer;
@@ -23,13 +24,13 @@ public class KafkaController {
 
     @PostMapping("/sendCardUpdate")
     public String sendCardUpdateMessage(@RequestBody CardUpdateEvent event) {
-        messageProducer.sendCardUpdateMsg("card-update", event);
+        messageProducer.sendCardUpdateMsg(KafkaTopic.CARD_UPDATE.getName(), event);
         return "Message of event sent: " + event;
     }
 
     @PostMapping("/sendRecommendFeedback")
     public String sendRecommendFeedbackMessage(@RequestBody RecommendFeedbackEvent event) {
-        messageProducer.sendFeedbackMsg("recommend-feedback", event);
+        messageProducer.sendFeedbackMsg(KafkaTopic.RECOMMEND_FEEDBACK.getName(), event);
         return "Message of event sent: " + event;
     }
 

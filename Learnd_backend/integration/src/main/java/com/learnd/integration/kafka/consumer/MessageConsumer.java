@@ -1,6 +1,7 @@
 package com.learnd.integration.kafka.consumer;
 
 import com.learnd.integration.kafka.config.KafkaConsumerConfig;
+import com.learnd.integration.kafka.enums.KafkaTopic;
 import com.learnd.integration.kafka.model.CardUpdateEvent;
 import com.learnd.integration.kafka.model.RecommendFeedbackEvent;
 import org.apache.kafka.clients.consumer.*;
@@ -26,7 +27,7 @@ public class MessageConsumer {
     public List<CardUpdateEvent> consumeCardUpdateEvents(int userId, int deckId) {
         List<CardUpdateEvent> listOfCardEvents = new ArrayList<>();
         try (Consumer<String, CardUpdateEvent> consumer = cardUpdateEventConsumerFactory.createConsumer()) {
-            consumer.subscribe(Collections.singletonList("card-update"));
+            consumer.subscribe(Collections.singletonList(KafkaTopic.CARD_UPDATE.getName()));
             ConsumerRecords<String, CardUpdateEvent> records = consumer.poll(Duration.ofSeconds(1));
             Map<TopicPartition, OffsetAndMetadata> offsetsToCommit = new HashMap<>();
             for (ConsumerRecord<String, CardUpdateEvent> record : records) {
@@ -50,7 +51,7 @@ public class MessageConsumer {
         List<RecommendFeedbackEvent> listOfFeedbackEvents = new ArrayList<>();
 
         try (Consumer<String, RecommendFeedbackEvent> consumer = feedbackFactory.createConsumer()) {
-            consumer.subscribe(Collections.singletonList("card-update"));
+            consumer.subscribe(Collections.singletonList(KafkaTopic.RECOMMEND_FEEDBACK.getName()));
             ConsumerRecords<String, RecommendFeedbackEvent> records = consumer.poll(Duration.ofSeconds(1));
             Map<TopicPartition, OffsetAndMetadata> offsetsToCommit = new HashMap<>();
             for (ConsumerRecord<String, RecommendFeedbackEvent> record : records) {
