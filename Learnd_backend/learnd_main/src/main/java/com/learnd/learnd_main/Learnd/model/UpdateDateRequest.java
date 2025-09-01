@@ -1,12 +1,13 @@
 package com.learnd.learnd_main.Learnd.model;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 public class UpdateDateRequest {
 
     private String cardType;
     private int cardId;
-    private LocalDate newDate;
+    private Instant newDate;
 
     public String getCardType() {
         return cardType;
@@ -16,7 +17,7 @@ public class UpdateDateRequest {
         return cardId;
     }
 
-    public LocalDate getNewDate() {
+    public Instant getNewDate() {
         return newDate;
     }
 
@@ -28,7 +29,7 @@ public class UpdateDateRequest {
         this.cardId = cardId;
     }
 
-    public void setNewDate(LocalDate newDate) {
+    public void setNewDate(Instant newDate) {
         this.newDate = newDate;
     }
 }

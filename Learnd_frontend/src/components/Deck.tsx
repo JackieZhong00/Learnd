@@ -11,6 +11,8 @@ import CreateMultipleChioceCardModal from './modal_components/CreateMultipleChio
 import CreateFlashCardModal from './modal_components/CreateFlashCardModal'
 import { set } from 'zod/v4'
 import {CardSubmitType} from './modal_components/CreateFlashCardModal'
+import useTestModalState from '../hooks/useTestModal'
+import TestModal from './modal_components/TestModal'
 
 export type FlashcardDTO = {
   id: number
@@ -36,6 +38,7 @@ type DeckRenameType = {
 }
 const Deck = () => {
   const createCardModal = useCreateCardModal()
+  const useTestModal = useTestModalState()
   const param = useParams()
   const navigate = useNavigate()
   const [cardSearch, setCardSearch] = useState<string>('')
@@ -238,9 +241,7 @@ const Deck = () => {
     }
   }
 
-  const allowRecommendationToDisplay = (card : FlashcardDTO) => {
-    setToDisplay(card)
-  }
+  
   const childSetIsRecommendationDisplayed = (choice : boolean) => {
     setIsRecommendationDisplayed(choice)
   }
@@ -249,10 +250,15 @@ const Deck = () => {
   return (
     <div className="w-screen h-screen bg-[radial-gradient(circle,_#BCA8A8_0%,_#837675_83%,_#847674_100%)]">
       <Toaster position="top-center" />
+      {useTestModal.isOpen ? (
+        <TestModal />
+      ) : (<div></div>)}
       <RecommendModal
         deckId={param.deck_id}
-        allowRecommendationToDisplay={allowRecommendationToDisplay}
+        setQuestionToDisplay={setQuestionToDisplay}
+        setAnswerToDisplay={setAnswerToDisplay}
         childSetIsRecommendationDisplayed={childSetIsRecommendationDisplayed}
+        setToDisplay={setToDisplay}
       />
       {createCardModal.isOpen && cardTypeSelected === 'flashcard' && (
         <CreateFlashCardModal />
@@ -335,13 +341,13 @@ const Deck = () => {
       </div>
       <hr className="border border-t-1 border-black-500 " />
       <div className="flex flex-row gap-[2vw] mx-[2vw] h-[8vh]">
-        <p className="rounded-[50px] px-[12px] py-[8px] bg-[#B4B483] ">
+        <p className="flex rounded-[50px] w-[8vw] h-[4vh] bg-[#B4B483] text-center justify-center items-center">
           {param.username}'s deck:
         </p>
-        <div className="flex" ref={outsideClickRef}>
+        <div className="flex flex-col mt-[1.5vh]" ref={outsideClickRef}>
           {isEditingName ? (
             <input
-              className="rounded-[50px] bg-[#B4B483] flex border border-none"
+              className="rounded-[50px] bg-[#B4B483] flex border border-none w-[10vw] h-[4vh] text-[16px]"
               onChange={(e) => {
                 setTempDeckName(e.target.value)
               }}
@@ -353,17 +359,18 @@ const Deck = () => {
           ) : (
             <input
               readOnly
-              className="cursor-pointer bg-[#B4B483] rounded-[50px] border-none deckName"
+              className="cursor-pointer bg-[#B4B483] rounded-[50px] border-none deckName text-center w-[10vw] h-[4vh] text-[16px]"
               value={deckName}
             />
           )}
+          <button
+            className="cursor-pointer flex justify-content items-center rounded-[50px] w-[4vw] h-[2vh] text-center text-[9px] mt-[5px]"
+            onClick={deleteDeck}
+          >
+            Delete Deck
+          </button>
         </div>
-        <button
-          className="cursor-pointer flex justify-content items-center rounded-[50px]"
-          onClick={deleteDeck}
-        >
-          <p className="">Delete Deck</p>
-        </button>
+        <button className='h-[5vh] mt-[1vh]' onClick={() => {useTestModal.setTrue()}}>Start Review</button>
       </div>
       <div className="max-h-[70vh]">
         <div className="flex flex-row mt-[20px] max-h-[70vh]">
@@ -515,7 +522,9 @@ const Deck = () => {
                     />
                   </div>
                 </div>
-                <button type="submit">Update</button>
+                <button type="submit" className="cursor-pointer">
+                  Update
+                </button>
               </form>
             ) : (
               <form onSubmit={handleAddRecommendation}>
@@ -539,7 +548,9 @@ const Deck = () => {
                     />
                   </div>
                 </div>
-                <button type="submit">Add Card</button>
+                <button type="submit" className="cursor-pointer">
+                  Add Card
+                </button>
               </form>
             )}
           </div>

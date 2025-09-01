@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import com.learnd.learnd_main.Learnd.repo.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -93,13 +94,13 @@ public class DeckService {
         }
     }
 
-    public void updateFlashcard(int cardId, LocalDate date) {
+    public void updateFlashcard(int cardId, Instant date) {
         Flashcard card = flashcardRepository.findById(cardId);
         card.setDateOfNextUsage(date);
         flashcardRepository.save(card);
     }
 
-    public void updateMultipleChoiceCard(int cardId, LocalDate date) {
+    public void updateMultipleChoiceCard(int cardId, Instant date) {
         MultipleChoiceCard card = multipleChoiceCardRepository.findById(cardId);
         card.setDateOfNextUsage(date);
         multipleChoiceCardRepository.save(card);

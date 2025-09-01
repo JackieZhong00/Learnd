@@ -10,13 +10,16 @@ import com.learnd.learnd_main.Learnd.repo.FlashcardRepository;
 import com.learnd.learnd_main.Learnd.service.DeckService;
 import com.learnd.learnd_main.Learnd.service.FlashcardService;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedModel;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +65,14 @@ public class FlashcardController {
         FlashcardDTO flashcardDTO = new FlashcardDTO(fetchedCard);
         flashcardService.save(fetchedCard);
         return flashcardDTO;
+    }
+
+    @PatchMapping("/updateCardDate/{cardId}")
+    public ResponseEntity<Void> updateCardDate(@PathVariable int cardId, @RequestBody Instant date){
+        Flashcard fetchedCard = flashcardRepository.findById(cardId);
+        fetchedCard.setDateOfNextUsage(date);
+        flashcardService.save(fetchedCard);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{cardId}")

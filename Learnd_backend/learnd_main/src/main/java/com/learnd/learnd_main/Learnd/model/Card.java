@@ -3,7 +3,7 @@ package com.learnd.learnd_main.Learnd.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 
-import java.time.LocalDate;
+import java.time.Instant;
 
 @MappedSuperclass
 public abstract class Card {
@@ -12,29 +12,29 @@ public abstract class Card {
     public String question;
 
     @Column
-    public LocalDate dateOfNextUsage;
+    public Instant dateOfNextUsage;
 
     public Card () {
-        this.dateOfNextUsage = LocalDate.now();
+        this.dateOfNextUsage = Instant.now();
     }
 
     public Card(String question) {
         this.question = question;
-        this.dateOfNextUsage = LocalDate.now();
+        this.dateOfNextUsage = Instant.now();
     }
 
     public String getQuestion() {
         return question;
     }
 
-    public LocalDate getDateOfNextUsage() {
+    public Instant getDateOfNextUsage() {
         return dateOfNextUsage;
     }
     public void setQuestion(String question) {
         this.question = question;
     }
 
-    public void setDateOfNextUsage(LocalDate dateOfNextUsage) {
+    public void setDateOfNextUsage(Instant dateOfNextUsage) {
         this.dateOfNextUsage = dateOfNextUsage;
     }
 

@@ -10,12 +10,21 @@ class EventDispatcherServicer(event_dispatcher_pb2_grpc.EventDispatcherServicer)
         print(request)
         result = compile_graph(request)
 
-        responseObj = event_dispatcher_pb2.DispatchResultGRPC(
+        print("Generated result from RAG pipeline: ")
+        print(result)
+        if 'grade_hallucination' in result:
+            return event_dispatcher_pb2.DispatchResultGRPC(
+                success = False,
+                question=result['grade_hallucination']['generated_question'],
+                answer=[result['grade_hallucination']['generated_answer']]
+            )
+        else:
+            return event_dispatcher_pb2.DispatchResultGRPC(
             success = True,
-            question=result.question,
-            answer=result.answer
+            question=result['generate_recommendation']['generated_question'],
+            answer=[result['generate_recommendation']['generated_answer']]
         )
-        return responseObj
+
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

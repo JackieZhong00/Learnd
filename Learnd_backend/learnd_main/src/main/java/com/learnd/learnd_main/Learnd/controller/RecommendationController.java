@@ -5,8 +5,10 @@ import com.learnd.integration.grpc.*;
 import com.learnd.integration.kafka.model.CardUpdateEvent;
 
 import com.learnd.integration.kafka.model.RecommendFeedbackEvent;
+import com.learnd.integration.kafka.producer.MessageProducer;
 import com.learnd.integration.kafka.service.KafkaConsumerService;
 import com.learnd.learnd_main.Learnd.model.Deck;
+import com.learnd.learnd_main.Learnd.model.Flashcard;
 import com.learnd.learnd_main.Learnd.repo.DeckRepository;
 import jdk.jfr.Event;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,11 +27,16 @@ public class RecommendationController {
     private final KafkaConsumerService kafkaConsumerService;
     private final RagGrpcClient ragGrpcClient;
     private final DeckRepository deckRepository;
+    private final MessageProducer   messageProducer;
 
-    public RecommendationController(KafkaConsumerService kafkaConsumerService, RagGrpcClient ragGrpcClient, DeckRepository deckRepository) {
+    public RecommendationController(KafkaConsumerService kafkaConsumerService,
+                                    RagGrpcClient ragGrpcClient,
+                                    DeckRepository deckRepository,
+                                    MessageProducer messageProducer) {
         this.kafkaConsumerService = kafkaConsumerService;
         this.ragGrpcClient = ragGrpcClient;
         this.deckRepository = deckRepository;
+        this.messageProducer = messageProducer;
     }
 
     private CardUpdateEventGRPC toProtoCardUpdate(CardUpdateEvent event) {
@@ -55,7 +62,7 @@ public class RecommendationController {
     }
 
     @GetMapping("/getRecommendations/{userId}/{deckId}/{deckName}")
-    public DispatchResultGRPC getRecommendations(@PathVariable("userId") int userId,
+    public Flashcard getRecommendations(@PathVariable("userId") int userId,
                                    @PathVariable("deckId") int deckId, @PathVariable String deckName) {
         List<CardUpdateEvent> recentCardUpdates = kafkaConsumerService.consumeCardUpdateEvents(userId, deckId);
         List<RecommendFeedbackEvent> recentFeedbackUpdate = kafkaConsumerService.consumeFeedbackEvents(userId, deckId);
@@ -69,8 +76,10 @@ public class RecommendationController {
                                       .addAllCardUpdate(recentCardUpdates.stream().map(this::toProtoCardUpdate).toList())
                                       .addAllFeedback(recentFeedbackUpdate.stream().map(this::toProtoFeedback).toList())
                                       .build();
-        return ragGrpcClient.send(grpcRequest);
+        DispatchResultGRPC result = ragGrpcClient.send(grpcRequest);
+        return new Flashcard(result.getQuestion(),result.getAnswer(0));
     }
+
 
     //this should be flow of logic:
     // 1. batch from kafka using the messageConsumer component's method
