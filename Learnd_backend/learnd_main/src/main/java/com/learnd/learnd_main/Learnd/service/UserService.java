@@ -5,6 +5,7 @@ import com.learnd.learnd_main.Learnd.model.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,15 +21,24 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    private final AuthenticationManager authManager;
     private final JWTService jwtService;
+    private AuthenticationManager authManager;
+    private final AuthenticationConfiguration authConfig;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(10);
 
 
-    public UserService(UserRepository userRepo, AuthenticationManager authManager, JWTService jwtService) {
+    public UserService(UserRepository userRepo, AuthenticationConfiguration authConfig,
+                       JWTService jwtService) throws Exception {
         this.userRepository = userRepo;
-        this.authManager = authManager;
         this.jwtService = jwtService;
+        this.authConfig = authConfig;
+    }
+
+    private AuthenticationManager getAuthManager() throws Exception {
+        if (authManager == null) {
+            authManager = authConfig.getAuthenticationManager();
+        }
+        return authManager;
     }
 
     public Optional<User> findUserByEmail(String email) {
@@ -48,7 +58,7 @@ public class UserService {
     }
 
 
-    public Map<String,String> verify(User user){
+    public Map<String,String> verify(User user) throws Exception {
         //authentication token is created with user credentials
         //token is passed into authenticate which then passes the token to
         // authentication provider specified in your config, in our case it is DaoAuthenticationProvider
@@ -59,7 +69,7 @@ public class UserService {
         // authenticate concludes this process by returning an Authentication object with isAuthenticated = true
         // the Authentication object also includes the user details
 
-        Authentication auth = authManager
+        Authentication auth = getAuthManager()
                 .authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         if (auth.isAuthenticated()) {
             Map<String,String> tokens = new HashMap<>();
@@ -82,8 +92,8 @@ public class UserService {
 
 
 
-    public Map<String,String> register(User user){
-        Authentication auth = authManager
+    public Map<String,String> register(User user) throws Exception{
+        Authentication auth = getAuthManager()
                 .authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         if (auth.isAuthenticated()) {
             Map<String, String> emptyTokens = new HashMap<>();

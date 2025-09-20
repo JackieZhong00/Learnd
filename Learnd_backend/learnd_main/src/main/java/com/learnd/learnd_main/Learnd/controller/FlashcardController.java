@@ -72,6 +72,9 @@ public class FlashcardController {
         Flashcard fetchedCard = flashcardRepository.findById(cardId);
         fetchedCard.setDateOfNextUsage(date);
         flashcardService.save(fetchedCard);
+        if(fetchedCard.getDateOfNextUsage().isBefore(fetchedCard.getDeck().getEarliestDueDate())) {
+            deckService.updateDeckEarliestDueDate(fetchedCard.getDateOfNextUsage(), fetchedCard.getDeck().getId());
+        }
         return ResponseEntity.ok().build();
     }
 

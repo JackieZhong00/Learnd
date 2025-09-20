@@ -2,6 +2,7 @@ package com.learnd.learnd_main.Learnd.model;
 
 import jakarta.persistence.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
@@ -18,12 +19,18 @@ public class Deck {
     @Column (name = "category")
     private String category;
 
+    @Column (name = "accuracy")
+    private int accuracy = 100;
+
+    @Column (name = "earliest_due_date")
+    private Instant earliestDueDate;
+
     //deck is the name of member variable in card classes
     //that's used to link a deck to the card
-    @OneToMany(mappedBy = "deck")
+    @OneToMany(mappedBy = "deck", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Flashcard> cards;
 
-    @OneToMany(mappedBy = "deck_m")
+    @OneToMany(mappedBy = "deck_m", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MultipleChoiceCard> cards_m;
 
     @ManyToOne
@@ -72,6 +79,21 @@ public class Deck {
 
     public void setCategory_fk(Category category){
         this.category_fk = category;
+    }
+
+    public int getAccuracy() {
+        return accuracy;
+    }
+    public void setAccuracy(int accuracy) {
+        this.accuracy = accuracy;
+    }
+
+    public Instant getEarliestDueDate() {
+        return earliestDueDate;
+    }
+
+    public void setEarliestDueDate(Instant earliestDueDate) {
+        this.earliestDueDate = earliestDueDate;
     }
 
 }

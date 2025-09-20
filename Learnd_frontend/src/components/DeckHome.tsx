@@ -6,41 +6,36 @@ import axios from 'axios'
 import CreateDeckModal from './modal_components/CreateDeckModal'
 import useCreateDeckModal from '../hooks/useCreateDeckModal'
 import useIsLoggedOut from '../hooks/useIsLoggedOut'
+import { set } from 'zod/v4'
+import { useQuery } from '@tanstack/react-query'
 
 type Deck = {
   id: number,
   name: string,
   category: string
 }
+
+const fetchDecks = async () : Promise<Deck[]> => {
+  const response = await axios.get(
+    `http://localhost:8080/api/deck/getAllDecksByUser`,
+    { withCredentials: true }
+  )
+  console.log(response)
+  return response.data
+}
+
 const DeckHome = () => {
   const param = useParams()
   const navigate = useNavigate()
   const isLoggedOutHook = useIsLoggedOut()
-
-  const [decks, setDecks] = useState<Deck[]>([])
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const deckModalHook = useCreateDeckModal()
  
-  
-  const fetchDecks = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:8080/api/deck/getAllDecksByUser`,
-        { withCredentials: true }
-      )
-      console.log(response)
-      if (response.data) {
-        setDecks(response.data)
-      }
-    } catch (error) {
-      console.error('Error fetching decks:', error)
-    }
-  }
-
-  useEffect(() => {
-    fetchDecks()
-  }
-  , [])
+  const {data} = useQuery({
+    queryKey: ["getDecks"],
+    queryFn: fetchDecks
+  })
+  const decks = data ? data : []
 
   const deckButtonHandler = (deckName: string, deckId : number) => {
     navigate(`/${param.username}/${deckName}/${deckId}`)
@@ -175,7 +170,7 @@ const DeckHome = () => {
               </button>
             </div>
           ) : (
-            <div></div>
+            <></>
           )}
         </div>
         <div className="w-4/5 h-full border border-black-500 bg-[linear-gradient(to_top,_#847E5E_10%,_#89825A_30%,_#B4B483_100%)] h-screen"></div>

@@ -24,10 +24,10 @@ public class Category {
     @JoinColumn(name = "parent_category_id")
     private Category parent;
 
-    @OneToMany(mappedBy = "category_fk", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "category_fk", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Deck> decks = new ArrayList<Deck>();
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Category> children = new ArrayList<>();
 
     public int getId() {

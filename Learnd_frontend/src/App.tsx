@@ -31,7 +31,7 @@ const router = createBrowserRouter([
     path: '/:username/settings',
     element: <Settings/>,
     errorElement: <ErrorPage/>
-  }
+  },
   // {
   //   path: '/:username/:topicName',
   //   element: <TopicHome />,

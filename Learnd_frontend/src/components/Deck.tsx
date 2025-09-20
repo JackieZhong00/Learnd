@@ -315,7 +315,7 @@ const Deck = () => {
                 </button>
               </div>
               <div className="flex flex-row gap-[10px]">
-                <button className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                <button className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => {navigate(`/${param.username}`)}}>
                   Profile
                 </button>
                 <button

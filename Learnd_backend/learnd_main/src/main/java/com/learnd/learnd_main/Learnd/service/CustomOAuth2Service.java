@@ -14,7 +14,7 @@ import java.util.Optional;
 @Service
 public class CustomOAuth2Service implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public CustomOAuth2Service(UserRepository repo) {
         this.userRepository = repo;
@@ -29,11 +29,15 @@ public class CustomOAuth2Service implements OAuth2UserService<OAuth2UserRequest,
         // Check if user already exists in the database
         Optional<User> existingUser = userRepository.findByEmail(email);
 
-        existingUser.ifPresent(fetchedUser -> {
+        if (existingUser.isEmpty()) {
+            String standardizedEmail = email.toLowerCase().trim();
             User newUser = new User();
-            newUser.setEmail(email);
+            newUser.setEmail(standardizedEmail);
+            newUser.setUsername(standardizedEmail.split("@")[0]);
+            newUser.setRefreshTokenVersion();
             userRepository.save(newUser);
-        });
+
+        }
 
         // Return the OAuth2User (can also add roles or authorities here if needed)
         return oauth2User;

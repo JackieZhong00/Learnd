@@ -30,7 +30,7 @@ public class UserController {
 
     //Authentication
     @PostMapping("/login")
-    public ResponseEntity<Void> loginUser(@RequestBody User user, HttpServletResponse response) {
+    public ResponseEntity<Void> loginUser(@RequestBody User user, HttpServletResponse response) throws Exception {
         Map<String, String> tokens = userService.verify(user); //checks to see if user credentials match db
 
         //manually set, so if Map has key with value "error" couldn't validate credentials
@@ -77,7 +77,7 @@ public class UserController {
 
     //Post request for registering a new User
     @PostMapping("/register")
-    public ResponseEntity<Map<String,String>> registerUser(@RequestBody User user, HttpServletResponse response) {
+    public ResponseEntity<Map<String,String>> registerUser(@RequestBody User user, HttpServletResponse response) throws Exception {
         Map<String,String> tokens = userService.register(user);
         if(tokens.containsKey("error")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -85,10 +85,13 @@ public class UserController {
         Cookie accessTokenCookie = new Cookie("accessToken", tokens.get("accessToken"));
         accessTokenCookie.setPath("/");
         accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setMaxAge(1800);
+
 
         Cookie refreshTokenCookie = new Cookie("refreshToken", tokens.get("refreshToken"));
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setMaxAge(60*60*24*30); //30 days
 
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);

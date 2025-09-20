@@ -130,5 +130,11 @@ public class DeckService {
         Optional<Integer> fetchedint = deckRepository.findIdByNameAndUser(name,userObj);
         return fetchedint.orElseThrow();
     }
+
+    public void updateDeckEarliestDueDate(Instant date, int deckId) {
+        Deck fetchedDeck = deckRepository.findById(deckId).orElseThrow();
+        fetchedDeck.setEarliestDueDate(date);
+        deckRepository.save(fetchedDeck);
+    }
 }
 

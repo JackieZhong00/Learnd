@@ -125,6 +125,10 @@ const RegisterLoginPage = () => {
       navigate(`/${username}/deck_home`)
     }
   }
+
+  const handleGoogleOAuth = () => {
+    window.location.href = `http://localhost:8080/oauth2/authorization/google`
+  }  
   return (
     <div className="w-screen h-screen flex bg-[radial-gradient(circle,_#BCA8A8_0%,_#837675_83%,_#847674_100%)]">
       <section className="flex flex-col bg-blue-200 w-[50vw]">
@@ -241,6 +245,7 @@ const RegisterLoginPage = () => {
             </button>
           </div>
         )}
+        <button onClick={handleGoogleOAuth} className='cursor-pointer w-[10vw]'>Google OAuth</button>
       </section>
     </div>
   )

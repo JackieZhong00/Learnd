@@ -16,16 +16,11 @@ import java.util.List;
 @RequestMapping(path = "/api/deck")
 public class DeckController {
     private final DeckService deckService;
-    private final FlashcardService flashcardService;
-    private final UserService userService;
-    private final UserRepository userRepository;
+
     private final DeckRepository deckRepository;
 
-    public DeckController(DeckService deckService, FlashcardService flashcardService, UserService userService, UserRepository userRepository, DeckRepository deckRepository) {
+    public DeckController(DeckService deckService, DeckRepository deckRepository) {
         this.deckService = deckService;
-        this.flashcardService = flashcardService;
-        this.userService = userService;
-        this.userRepository = userRepository;
         this.deckRepository = deckRepository;
     }
 
@@ -72,6 +67,11 @@ public class DeckController {
         deckRepository.deleteById(deckId);
         return ResponseEntity.ok().build();
     }
+
+//    @GetMapping("/getDueDecks")
+//    public List<DeckDTO> getDueDecks(){
+//        //get user id from security context - use it to get all decks with due date == today
+//    }
 
 
 }

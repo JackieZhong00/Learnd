@@ -47,9 +47,13 @@ public class JwtFilter extends OncePerRequestFilter {
         String accessToken = null;
         String refreshToken = null;
         String email = "";
-        String path = request.getRequestURI();
+        String path = request.getServletPath();
+        System.out.println("path entering jwtfilter's dofilterinternal function: " + path);
 
-        if (path.equals("/api/user/login") || path.equals("/api/user/register")) {
+        if (path.equals("/api/user/login") || path.equals("/api/user/register")
+                || path.startsWith("/login/oauth2")
+                || path.startsWith("/favicon.ico")
+                || path.startsWith("/default-ui.css")) {
             filterChain.doFilter(request, response);
             return;
         }

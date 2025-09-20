@@ -17,6 +17,7 @@ const TestModal = () => {
     const [sliderValue, setSliderValue] = useState<number>(0)
 
 
+
     const param = useParams()
     
     const fetchCards = async () => {

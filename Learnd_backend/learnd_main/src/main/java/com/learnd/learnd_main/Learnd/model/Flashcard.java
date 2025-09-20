@@ -37,6 +37,9 @@ public class Flashcard extends Card {
     public void setDeck(Deck deck) {
         this.deck = deck;
     }
+    public Deck getDeck(){
+        return this.deck;
+    }
 
     //fk_deck_id = name of column in Flashcard table the holds foreign key refs to decks
     @ManyToOne

@@ -1,2 +1,4 @@
 .env
 env/
+chroma_cluster_db/
+chroma_db/
