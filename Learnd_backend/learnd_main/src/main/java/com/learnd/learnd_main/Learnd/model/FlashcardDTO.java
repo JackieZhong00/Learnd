@@ -1,13 +1,12 @@
 package com.learnd.learnd_main.Learnd.model;
 
-import java.time.Instant;
 import java.time.LocalDate;
 
 public class FlashcardDTO {
     int id;
     String question;
     String answer;
-    Instant dateOfNextUsage;
+    LocalDate dateOfNextUsage;
 
     public FlashcardDTO(Flashcard flashcard) {
         this.id = flashcard.getId();
@@ -32,11 +31,11 @@ public class FlashcardDTO {
         return answer;
     }
 
-    public Instant getDateOfNextUsage() {
+    public LocalDate getDateOfNextUsage() {
         return dateOfNextUsage;
     }
 
-    public void setDateOfNextUsage(Instant dateOfNextUsage) {
+    public void setDateOfNextUsage(LocalDate dateOfNextUsage) {
         this.dateOfNextUsage = dateOfNextUsage;
     }
 

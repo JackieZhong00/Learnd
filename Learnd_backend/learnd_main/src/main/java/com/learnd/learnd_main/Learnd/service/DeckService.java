@@ -94,13 +94,13 @@ public class DeckService {
         }
     }
 
-    public void updateFlashcard(int cardId, Instant date) {
+    public void updateFlashcard(int cardId, LocalDate date) {
         Flashcard card = flashcardRepository.findById(cardId);
         card.setDateOfNextUsage(date);
         flashcardRepository.save(card);
     }
 
-    public void updateMultipleChoiceCard(int cardId, Instant date) {
+    public void updateMultipleChoiceCard(int cardId, LocalDate date) {
         MultipleChoiceCard card = multipleChoiceCardRepository.findById(cardId);
         card.setDateOfNextUsage(date);
         multipleChoiceCardRepository.save(card);

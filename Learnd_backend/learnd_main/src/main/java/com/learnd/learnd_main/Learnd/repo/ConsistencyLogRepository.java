@@ -11,19 +11,17 @@ public interface ConsistencyLogRepository extends JpaRepository<UserConsistencyL
 
     @Query(value = """
         WITH calendar AS (
-          SELECT d::date AS day
-          FROM generate_series(
-            date_trunc('year', CURRENT_DATE),
-            date_trunc('year', CURRENT_DATE) + interval '1 year - 1 day',
+          SELECT (generate_series(
+            date_trunc('year', CURRENT_DATE)::date,
+            (date_trunc('year', CURRENT_DATE) + interval '1 year - 1 day')::date,
             interval '1 day'
-          ) d
+          ))::date AS day
         )
-        SELECT c.day, l.is_consistent
+        SELECT c.day AS day, COALESCE(l.is_consistent, false) AS is_consistent
         FROM calendar c
         LEFT JOIN user_consistency_log l
-               ON l.date = c.day
-              AND l.user_id = :userId
-        WHERE c.day >= (SELECT created_at::date FROM users WHERE id = :userId)
+          ON l.date = c.day
+         AND l.fk_user = :userId
         ORDER BY c.day
         """, nativeQuery = true)
     List<Object[]> findConsistencyCalendar(@Param("userId") Long userId);

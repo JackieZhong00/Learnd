@@ -2,10 +2,7 @@ package com.learnd.learnd_main.Learnd.controller;
 
 import com.learnd.integration.kafka.model.CardUpdateEvent;
 import com.learnd.integration.kafka.producer.MessageProducer;
-import com.learnd.learnd_main.Learnd.model.Deck;
-import com.learnd.learnd_main.Learnd.model.Flashcard;
-import com.learnd.learnd_main.Learnd.model.FlashcardDTO;
-import com.learnd.learnd_main.Learnd.model.FlashcardSubmitRequest;
+import com.learnd.learnd_main.Learnd.model.*;
 import com.learnd.learnd_main.Learnd.repo.FlashcardRepository;
 import com.learnd.learnd_main.Learnd.service.DeckService;
 import com.learnd.learnd_main.Learnd.service.FlashcardService;
@@ -19,7 +16,6 @@ import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +40,10 @@ public class FlashcardController {
     public FlashcardDTO createCard(@PathVariable int deckId, @RequestBody FlashcardSubmitRequest card) {
         //get Deck associated with Deck name and set the card's deck variable to this deck object before saving the card
         Deck deck = deckService.getDeckById(deckId);
+        User user = deck.getUser();
         Flashcard flashcard = new Flashcard(card.getQuestion(), card.getAnswer());
         flashcard.setDeck(deck);
+        flashcard.setUser(user);
         Flashcard createdCard = flashcardService.save(flashcard);
         List<String> answers = new ArrayList<>();
         answers.add(createdCard.getAnswer());
@@ -68,13 +66,10 @@ public class FlashcardController {
     }
 
     @PatchMapping("/updateCardDate/{cardId}")
-    public ResponseEntity<Void> updateCardDate(@PathVariable int cardId, @RequestBody Instant date){
+    public ResponseEntity<Void> updateCardDate(@PathVariable int cardId, @RequestBody LocalDate date){
         Flashcard fetchedCard = flashcardRepository.findById(cardId);
         fetchedCard.setDateOfNextUsage(date);
         flashcardService.save(fetchedCard);
-        if(fetchedCard.getDateOfNextUsage().isBefore(fetchedCard.getDeck().getEarliestDueDate())) {
-            deckService.updateDeckEarliestDueDate(fetchedCard.getDateOfNextUsage(), fetchedCard.getDeck().getId());
-        }
         return ResponseEntity.ok().build();
     }
 
@@ -111,7 +106,6 @@ public class FlashcardController {
         }
         return toReturn;
     }
-
 
 
     @DeleteMapping("/deleteById/{cardId}")

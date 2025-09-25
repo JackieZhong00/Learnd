@@ -7,7 +7,7 @@ public class UpdateDateRequest {
 
     private String cardType;
     private int cardId;
-    private Instant newDate;
+    private LocalDate newDate;
 
     public String getCardType() {
         return cardType;
@@ -17,7 +17,7 @@ public class UpdateDateRequest {
         return cardId;
     }
 
-    public Instant getNewDate() {
+    public LocalDate getNewDate() {
         return newDate;
     }
 
@@ -29,7 +29,7 @@ public class UpdateDateRequest {
         this.cardId = cardId;
     }
 
-    public void setNewDate(Instant newDate) {
+    public void setNewDate(LocalDate newDate) {
         this.newDate = newDate;
     }
 }

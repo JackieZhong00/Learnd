@@ -36,3 +36,10 @@ button{
   background: radial-gradient(circle, #AFA4A2 0%, #988E8D 33%, #7B7473 68%, #716867 93%);
 }
 
+.color-consistent {
+  fill: #1e6823;
+}
+
+.color-inconsistent {
+  fill: #d4aeae;
+}

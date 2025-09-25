@@ -49,9 +49,11 @@ const TestModal = () => {
             const numberOfDaysToAdd = Math.ceil(7*(sliderValue/10)) //7 days is the max 
             const currentDate = new Date()
             currentDate.setDate(currentDate.getDate() + numberOfDaysToAdd)
+            const localDateString = currentDate.toISOString().split('T')[0]
+
             await axios.patch(
               `http://localhost:8080/api/flashcard/updateCardDate/${cards[cardIndex].id}`,
-              JSON.stringify(currentDate.toISOString()),
+              localDateString,
               {
                 withCredentials: true,
                 headers: { 'Content-Type': 'application/json' },

@@ -2,10 +2,35 @@ import logo from '../assets/learnd_logo.png'
 import { useParams, useNavigate} from 'react-router-dom'
 import { useState } from 'react'
 import axios from 'axios'
+import { useQuery } from '@tanstack/react-query'
+import CalendarHeatmap from 'react-calendar-heatmap'
+import {Tooltip} from 'react-tooltip'
+type Day = { date: string; isConsistent: boolean }
 const Profile = () => {
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const param = useParams()
   const navigate = useNavigate()
+  const currentYear = new Date().getFullYear()
+
+
+  const {data, isLoading, isError, error} = useQuery({
+    queryKey:["getConsistencyData"],
+    queryFn: async () : Promise<Day[]> => {
+      const response = await axios.get(`http://localhost:8080/api/consistency/year`, {withCredentials: true})
+      return response.data
+    }
+  })
+
+  const values =
+    data?.map((d) => ({
+      date: d.date, // 'YYYY-MM-DD'
+      count: d.isConsistent ? 1 : 0,
+    })) ?? []
+
+  console.log(values)
+  if (isLoading) return <div>Loading...</div>
+  if (isError) return <div>Error: {(error as Error).message}</div>
+
   return (
     <div className="w-screen h-screen bg-[radial-gradient(circle,_#BCA8A8_0%,_#837675_83%,_#847674_100%)]">
       <div className="block flex flex-row h-[10vh]">
@@ -87,7 +112,27 @@ const Profile = () => {
         <p>Most Accurate</p>
         <p>Least Accurate</p>
         <p>Number of Days Consistent: </p>
-        
+      </div>
+      <div className="" id="heatmap">
+        <CalendarHeatmap
+          startDate={new Date(currentYear, 0, 1)}
+          endDate={new Date(currentYear, 11, 31)}
+          values={values}
+          showWeekdayLabels={false}
+          gutterSize={2}
+          classForValue={(value) => {
+            if (value && value.count === 0) return 'color-inconsistent'
+            return 'color-consistent'
+          }}
+          tooltipDataAttrs={(value: any) => {
+            if (!value || value.count === 0) {
+              return { 'data-tip': `${value?.date} — Not consistent` }
+            } else {
+              return { 'data-tip': `${value.date} — Consistent` }
+            }
+          }}
+        />
+        <Tooltip id="heatmap-tooltip" />
       </div>
     </div>
   )

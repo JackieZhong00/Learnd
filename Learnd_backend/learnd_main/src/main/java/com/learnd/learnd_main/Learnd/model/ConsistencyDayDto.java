@@ -1,5 +1,5 @@
 package com.learnd.learnd_main.Learnd.model;
 
-import java.time.Instant;
+import java.time.LocalDate;
 
-public record ConsistencyDayDto(Instant date, Boolean isConsistent) {}
+public record ConsistencyDayDto(LocalDate date, Boolean isConsistent) {}

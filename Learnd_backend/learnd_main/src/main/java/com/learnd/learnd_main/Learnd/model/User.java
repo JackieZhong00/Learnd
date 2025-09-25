@@ -4,6 +4,7 @@ package com.learnd.learnd_main.Learnd.model;
 import jakarta.persistence.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,9 @@ public class User {
     @Column(name = "refreshTokenVersion")
     private int refreshTokenVersion;
 
+    @Column(name = "dueDate")
+    private Instant dueDate;
+
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Deck> decks = new ArrayList<>();
@@ -36,6 +40,11 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserConsistencyLog> userConsistencyLogs = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Flashcard> flashcards = new ArrayList<>();
+
+
 
     public User(String email, String password){
         this.email = email;
@@ -66,6 +75,13 @@ public class User {
 
     public Integer getRefreshTokenVersion() {
         return refreshTokenVersion;
+    }
+
+    public Instant getDueDate() {
+        return dueDate;
+    }
+    public void setDueDate(Instant dueDate) {
+        this.dueDate = dueDate;
     }
 
     public void setId(int id) {
