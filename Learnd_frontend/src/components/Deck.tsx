@@ -250,9 +250,7 @@ const Deck = () => {
   return (
     <div className="w-screen h-screen bg-[radial-gradient(circle,_#BCA8A8_0%,_#837675_83%,_#847674_100%)]">
       <Toaster position="top-center" />
-      {useTestModal.isOpen ? (
-        <TestModal />
-      ) : (<div></div>)}
+      {useTestModal.isOpen ? <TestModal isReview={false} /> : <div></div>}
       <RecommendModal
         deckId={param.deck_id}
         setQuestionToDisplay={setQuestionToDisplay}
@@ -273,11 +271,13 @@ const Deck = () => {
       <div className="block flex flex-row h-[10vh]">
         <div className="flex w-full h-[100px]">
           <div className="w-[80px] h-[60px] overflow-hidden mt-[30px] ml-[30px]">
-            <img
-              src={logo}
-              alt="learnd_logo"
-              className="w-full h-full object-cover rounded-[55px]"
-            />
+            <a onClick={() => navigate(`/${param.username}/deck_home`)} className='cursor-pointer'>
+              <img
+                src={logo}
+                alt="learnd_logo"
+                className="w-full h-full object-cover rounded-[55px]"
+              />
+            </a>
           </div>
         </div>
         <div className="flex justify-center items-center mr-[3vw] h-[10vh]">
@@ -315,7 +315,12 @@ const Deck = () => {
                 </button>
               </div>
               <div className="flex flex-row gap-[10px]">
-                <button className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => {navigate(`/${param.username}`)}}>
+                <button
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => {
+                    navigate(`/${param.username}`)
+                  }}
+                >
                   Profile
                 </button>
                 <button
@@ -370,7 +375,14 @@ const Deck = () => {
             Delete Deck
           </button>
         </div>
-        <button className='h-[5vh] mt-[1vh]' onClick={() => {useTestModal.setTrue()}}>Start Review</button>
+        <button
+          className="h-[5vh] mt-[1vh]"
+          onClick={() => {
+            useTestModal.setTrue()
+          }}
+        >
+          Start Review
+        </button>
       </div>
       <div className="max-h-[70vh]">
         <div className="flex flex-row mt-[20px] max-h-[70vh]">

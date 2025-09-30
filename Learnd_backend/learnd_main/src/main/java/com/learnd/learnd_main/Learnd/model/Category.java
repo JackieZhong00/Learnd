@@ -7,6 +7,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Entity
+@Table(
+        name =  "category",
+        indexes = {
+            @Index(name="idx_category_userid", columnList="fk_user"),
+            @Index(name="idx_category_parentid", columnList="parent_category_id")
+        }
+)
 public class Category {
 
     @Id
@@ -16,18 +23,18 @@ public class Category {
     @Column
     private String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_user")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_category_id")
     private Category parent;
 
-    @OneToMany(mappedBy = "category_fk", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Deck> decks = new ArrayList<Deck>();
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Category> children = new ArrayList<>();
 
     public int getId() {
@@ -55,8 +62,15 @@ public class Category {
         this.parent = parent;
     }
 
-    public Optional<Category> getParent() {
-        return Optional.ofNullable(this.parent);
+    public Category getParent() {
+        return this.parent;
+    }
+
+    public List<Category> getChildren(){
+        return this.children;
+    }
+    public void setChildren(List<Category> children) {
+        this.children = children;
     }
 
 

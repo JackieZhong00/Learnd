@@ -5,9 +5,12 @@ import { useParams } from "react-router-dom"
 import { set } from "zod/v4"
 import useTestModalState from "../../hooks/useTestModal"
 import { get } from "react-hook-form"
+import { ca } from "zod/v4/locales"
 
-
-const TestModal = () => {
+type TestModalProps = {
+  isReview : boolean
+}
+const TestModal = ({isReview} : TestModalProps) => {
     const useTestModal = useTestModalState()
     const [cards, setCards] = useState<FlashcardDTO[]>([])
     const [pageNumber, setPageNumber] = useState<number>(0)
@@ -15,9 +18,8 @@ const TestModal = () => {
     const [cardIndex, setCardIndex] = useState<number>(0)
     const [sliderClicked, setSliderClicked] = useState<boolean>(false)
     const [sliderValue, setSliderValue] = useState<number>(0)
-
-
-
+    const [fetchMore, setFetchMore] = useState<boolean>(false)
+    
     const param = useParams()
     
     const fetchCards = async () => {
@@ -32,6 +34,9 @@ const TestModal = () => {
     }
 
     useEffect(() => {
+      if (isReview) {
+        return
+      }
         try {
             fetchCards()
         } catch (error) {
@@ -39,11 +44,17 @@ const TestModal = () => {
             // setPageNumber(pageNumber - 1)
             // setTimeout(fetchCards, 1000)
         }
-    }, [])
-    const getSliderValue = () => {
-        const slider = document.getElementById("difficulty-slider") as HTMLInputElement 
-        return slider.value
+    }, [fetchMore])
+
+    const fetchReviewCards = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/flashcard/getAllDueCards`, {withCredentials: true})
+        setCards(response.data)
+      } catch (error) {
+        console.log("error fetching review cards: " + error)
+      }
     }
+   
     const handleSubmitDifficulty = async () => {
         try {
             const numberOfDaysToAdd = Math.ceil(7*(sliderValue/10)) //7 days is the max 
@@ -124,7 +135,11 @@ const TestModal = () => {
                 onClick={() => {
                   if (cardIndex <= cards.length - 1) {
                     setCardIndex(cardIndex + 1)
+                    if (cardIndex == cards.length - 1 && !isReview) {
+                      setFetchMore(prev => !prev)
+                    }
                   }
+                  
                 }}
               >
                 Skip

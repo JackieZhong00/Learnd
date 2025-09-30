@@ -23,6 +23,7 @@ public interface FlashcardRepository extends JpaRepository<Flashcard, Integer> {
 
 
     List<Flashcard> findByQuestionStartingWith(String prefix);
+    List<Flashcard> findByUser_IdAndPastDueTrue(int userId);
 
     int countByUser_IdAndDateOfNextUsage(int userId, LocalDate date);
 

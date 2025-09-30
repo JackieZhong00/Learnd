@@ -36,11 +36,13 @@ const Profile = () => {
       <div className="block flex flex-row h-[10vh]">
         <div className="flex w-full h-[100px]">
           <div className="w-[80px] h-[60px] overflow-hidden mt-[30px] ml-[30px]">
-            <img
-              src={logo}
-              alt="learnd_logo"
-              className="w-full h-full object-cover rounded-[55px]"
-            />
+            <a href="" className='cursor-pointer' onClick={() => navigate(`/${param.username}/deck_home`)}>
+              <img
+                src={logo}
+                alt="learnd_logo"
+                className="w-full h-full object-cover rounded-[55px]"
+              />
+            </a>
           </div>
         </div>
         <div className="flex justify-center items-center mr-[3vw] h-[10vh]">

@@ -17,7 +17,7 @@ public class Deck {
     private String name;
 
     @Column (name = "category")
-    private String category;
+    private String categoryName;
 
     @Column (name = "accuracy")
     private int accuracy = 100;
@@ -37,10 +37,12 @@ public class Deck {
     @JoinColumn(name = "fk_user")
     private User user;
 
-    @ManyToOne
+    @ManyToOne (fetch = FetchType.LAZY)
     @JoinColumn(name="fk_category")
-    private Category category_fk;
+    private Category category;
 
+    //to use as metadata - creates table with deck_id and list_of_categories columns
+    //list of categories column == one long string of all categories that current deck is under
     @ElementCollection
     private Set<String> listOfCategories;
 
@@ -62,7 +64,7 @@ public class Deck {
         return this.name;
     }
     public String getCategory(){
-        return this.category;
+        return this.categoryName;
     }
     public void setId(int id){
         this.id = id;
@@ -71,14 +73,14 @@ public class Deck {
         this.name = name;
     }
     public void setCategory(String category){
-        this.category = category;
+        this.categoryName = category;
     }
     public void setUser(User user){
         this.user = user;
     }
 
-    public void setCategory_fk(Category category){
-        this.category_fk = category;
+    public void setCategory(Category category){
+        this.category = category;
     }
 
     public int getAccuracy() {

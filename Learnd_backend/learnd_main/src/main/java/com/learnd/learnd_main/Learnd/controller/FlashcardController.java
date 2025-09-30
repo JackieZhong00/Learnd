@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -121,5 +122,10 @@ public class FlashcardController {
             toReturn.add(new FlashcardDTO(flashcard));
         }
         return toReturn;
+    }
+
+    @GetMapping("/getAllDueCards")
+    public List<FlashcardDTO> getAllDueCards() {
+        return flashcardService.getAllDueCards();
     }
 }

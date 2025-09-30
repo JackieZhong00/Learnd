@@ -19,10 +19,12 @@ public interface DeckRepository extends JpaRepository<Deck,Integer> {
 
     Deck findDeckByName(String name);
 
-    List<Deck> findByNameStartingWith(String name);
+    List<Deck> findByUser_IdAndNameStartingWith(int id, String name);
 
     List<Deck> findAllByUser(User user);
 
+
+    List<Deck> findByUser_IdAndCategory_Id(int userId, int categoryId);
 
     Optional<Integer> findIdByNameAndUser(String name, User user);
 

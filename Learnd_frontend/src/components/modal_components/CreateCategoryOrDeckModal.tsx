@@ -11,9 +11,9 @@ type deck = {
 type category = {
   name: string
 }
-const CreateDeckModal = () => {
+const CreateCategoryOrDeckModal = () => {
   const [name, setDeckName] = useState<string>("")
-  const [category, setCategory] = useState<string>("")
+  const [categoryName, setCategory] = useState<string>("")
   const [deckNamesWithPrefix, setDeckNamesWithPrefix] = useState<deck[]>([])
   const [categoryNamesWithPrefix, setCategoryNamesWithPrefix] = useState<category[]>([])
   const [categoryError, setCategoryError] = useState<boolean>(false)
@@ -27,35 +27,47 @@ const CreateDeckModal = () => {
   const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCategory(event.target.value)
   }
+  const callCreateCategoryEndpoint = async () => {
+    try {
+      await axios.post(
+        `http://localhost:8080/api/category/create`,
+        { name: categoryName },
+        { withCredentials: true }
+      )
+    } catch (error) {
+      console.log('error with creating category')
+    }
+  }
+  const callCreateDeckEndpoint = async () => {
+    try {
+      await axios.post(
+        `http://localhost:8080/api/deck/createDeck`,
+        { name: name, categoryName: categoryName },
+        { withCredentials: true }
+      )
+      toast.success('Deck and category created successfully')
+      setDeckName('')
+      setCategory('')
+    } catch (error) {
+      console.log('deck could not be created')
+    }
+  }
+
   const handleSubmit = async (e : React.FormEvent) => {
     e.preventDefault()
-    if(category === "" || name === "") {
+    if(categoryName === "" && name === "") {
       toast.error("Please fill in all fields")
       return
     }
+    if (categoryName !== "" && name === "") {
+      await callCreateCategoryEndpoint()
+      toast.success("Category created successfully")
+      setCategory("")
+      return
+    }
     try {
-      try {
-        await axios.post(
-          `http://localhost:8080/api/category/createCategory`,
-          {name: category},
-          { withCredentials: true }
-        )
-      } catch (error) {
-        console.log("error with creating category")
-      }
-      try {
-        await axios.post(
-          `http://localhost:8080/api/deck/createDeck`,
-          { name: name, categoryName: category },
-          { withCredentials: true }
-        )
-        toast.success('Deck and category created successfully')
-        setDeckName('')
-        setCategory('')
-      } catch (error) {
-        console.log("deck could not be created")
-      }
-      
+      await callCreateCategoryEndpoint()
+      await callCreateDeckEndpoint()
     } catch (error) {
       console.log("couldn't create deck or category")
     }
@@ -94,15 +106,15 @@ const CreateDeckModal = () => {
   }, [name])
 
   useEffect(() => {
-    if (category.trim() === '') {
+    if (categoryName.trim() === '') {
       setCategoryNamesWithPrefix([]) // clear suggestions if input is empty
       return // exit early
     }
     const delay = setTimeout(async () => {
       try {
-        if (category.length > 0) {
+        if (categoryName.length > 0) {
           const response = await axios.get(
-            `http://localhost:8080/api/category/getCategoriesByPrefix/${encodeURIComponent(category)}`,
+            `http://localhost:8080/api/category/searchPrefix/${encodeURIComponent(categoryName)}`,
             { withCredentials: true }
           )
           if (Array.isArray(response.data)) {
@@ -118,7 +130,8 @@ const CreateDeckModal = () => {
       }
     }, 300)
     return () => clearTimeout(delay)
-  }, [category])
+  }, [categoryName])
+  console.log("category names with prefix length: " + categoryNamesWithPrefix.length)
   
   return (
     <div className="bg-[#D9D9D9] w-[33vw] h-[27vh] border border-gray-300 border-2 rounded-[35px]">
@@ -139,22 +152,22 @@ const CreateDeckModal = () => {
           </button>
         </div>
         <div className="flex flex-col gap-[25px]">
-          <div className="flex flex-col gap-[5px]">
+          <div className="flex flex-col gap-[5px] relative">
             <label htmlFor="categoryName">Category Name</label>
             <input
               id="categoryName"
-              value={category}
+              value={categoryName}
               className="rounded-[25px]"
               onChange={handleCategoryChange}
             ></input>
-            {categoryError && (<p>category already exists</p>)}
+            {/* {categoryError && (<p>category already exists</p>)} */}
             {categoryNamesWithPrefix.length > 0 && (
               <div className="absolute top-[100%] left-0 bg-white border border-gray-300 rounded-md shadow-lg z-10">
                 <div className="max-h-[150px] overflow-y-auto flex flex-col">
                   {categoryNamesWithPrefix.map((category, index) => (
                     <button
                       key={index}
-                      className="px-4 py-2 hover:bg-[#D9D9D9] bg-[#FFFFFF] cursor-pointer rounded-none border border-bottom-[000000]]"
+                      className="px-4 py-2 hover:bg-[#D9D9D9] bg-[#FFFFFF] cursor-pointer rounded-none border border-bottom-[000000]"
                       onClick={() => {
                         setCategory(category.name)
                         setCategoryNamesWithPrefix([])
@@ -204,4 +217,4 @@ const CreateDeckModal = () => {
     </div>
   )
 }
-export default CreateDeckModal
+export default CreateCategoryOrDeckModal

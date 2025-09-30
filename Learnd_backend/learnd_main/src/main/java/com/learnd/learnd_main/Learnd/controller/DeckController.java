@@ -41,7 +41,7 @@ public class DeckController {
 
     //get all decks for the user with this prefix
     @GetMapping("/getDeckNamesWithPrefix/{prefix}")
-    public List<Deck> getAllDeckNamesWithPrefix(@PathVariable String prefix) {
+    public List<DeckDTO> getAllDeckNamesWithPrefix(@PathVariable String prefix) {
         return deckService.getAllDeckNamesWithPrefix(prefix);
     }
 
@@ -50,13 +50,17 @@ public class DeckController {
         return deckService.getAllDecksByUser();
     }
 
+    @GetMapping("/getByCategory/{categoryId}")
+    public List<DeckDTO> getDecksByCategory(@PathVariable int categoryId) {
+        return deckService.getDecksByCategory(categoryId);
+    }
     @GetMapping("/getDeckIdByName/{name}")
     public int getDeckIdByName (@PathVariable String name) {
         return deckService.getDeckIdByName(name);
     }
 
     @PatchMapping("/rename/{deckId}")
-    public ResponseEntity<Void> renameDeck(@PathVariable int deckId, @RequestBody DeckRenameRequest name) {
+    public ResponseEntity<Void> renameDeck(@PathVariable int deckId, @RequestBody RenameRequest name) {
         Deck deck = deckService.getDeckById(deckId);
         deck.setName(name.getName());
         deckRepository.save(deck);

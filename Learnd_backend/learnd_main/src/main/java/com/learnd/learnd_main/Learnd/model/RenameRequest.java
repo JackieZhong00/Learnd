@@ -1,11 +1,11 @@
 package com.learnd.learnd_main.Learnd.model;
 
-public class DeckRenameRequest {
+public class RenameRequest {
     String name;
-    public DeckRenameRequest () {
+    public RenameRequest () {
         this.name = null;
     }
-    public DeckRenameRequest(String name) {
+    public RenameRequest(String name) {
         this.name = name;
     }
     public String getName() {

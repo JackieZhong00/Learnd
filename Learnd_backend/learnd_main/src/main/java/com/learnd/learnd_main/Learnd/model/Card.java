@@ -29,23 +29,22 @@ public abstract class Card {
 
     public Card(String question) {
         this.question = question;
-        this.dateOfNextUsage = Instant.now().atZone(ZoneOffset.UTC).toLocalDate();;
+        this.dateOfNextUsage = Instant.now().atZone(ZoneOffset.UTC).toLocalDate();
     }
 
     public String getQuestion() {
         return question;
     }
-
     public LocalDate getDateOfNextUsage() {
         return dateOfNextUsage;
     }
     public void setQuestion(String question) {
         this.question = question;
     }
-
     public void setDateOfNextUsage(LocalDate dateOfNextUsage) {
         this.dateOfNextUsage = dateOfNextUsage;
     }
-
+    public boolean getPastDue() {return pastDue;}
+    public void setPastDue(boolean pastDue) {this.pastDue = pastDue;}
 }
 

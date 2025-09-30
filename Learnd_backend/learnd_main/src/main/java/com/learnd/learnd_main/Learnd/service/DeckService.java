@@ -1,12 +1,10 @@
 package com.learnd.learnd_main.Learnd.service;
 
 import com.learnd.learnd_main.Learnd.model.*;
-import com.learnd.learnd_main.Learnd.model.*;
 import com.learnd.learnd_main.Learnd.repo.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-import com.learnd.learnd_main.Learnd.repo.*;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -60,7 +58,7 @@ public class DeckService {
 
             fetchedCategory.ifPresentOrElse(
                     (category) -> {
-                        deck.setCategory_fk(category);
+                        deck.setCategory(category);
                         deck.setCategory(category.getName());
                         deck.setUser(user.get());
                         deckRepository.save(deck);
@@ -106,8 +104,15 @@ public class DeckService {
         multipleChoiceCardRepository.save(card);
     }
 
-    public List<Deck> getAllDeckNamesWithPrefix(String prefix) {
-        return deckRepository.findByNameStartingWith(prefix);
+    public List<DeckDTO> getAllDeckNamesWithPrefix(String prefix) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        int userId = userRepository.findByEmail(email).orElseThrow().getId();
+        List<Deck> result = deckRepository.findByUser_IdAndNameStartingWith(userId,prefix);
+        List<DeckDTO> deckDTOList = new ArrayList<>();
+        for (Deck deck : result) {
+            deckDTOList.add(new DeckDTO(deck));
+        }
+        return deckDTOList;
     }
 
     public List<DeckDTO> getAllDecksByUser() {
@@ -135,6 +140,18 @@ public class DeckService {
         Deck fetchedDeck = deckRepository.findById(deckId).orElseThrow();
         fetchedDeck.setEarliestDueDate(date);
         deckRepository.save(fetchedDeck);
+    }
+
+    public List<DeckDTO> getDecksByCategory(int categoryId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        int userId = userRepository.findByEmail(email).orElseThrow().getId();
+        List<Deck> decks = deckRepository.findByUser_IdAndCategory_Id(userId, categoryId);
+        List<DeckDTO> deckDtoList = new ArrayList<>();
+        for (Deck deck : decks) {
+            deckDtoList.add(new DeckDTO(deck));
+        }
+        return deckDtoList;
+
     }
 }
 

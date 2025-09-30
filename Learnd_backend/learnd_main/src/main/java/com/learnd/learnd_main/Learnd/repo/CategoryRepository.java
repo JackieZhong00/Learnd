@@ -14,10 +14,18 @@ public interface CategoryRepository extends JpaRepository<Category,Integer> {
     public void deleteByName(String name);
     public void deleteById(int id);
 
-    List<Category> findByNameStartingWith(String name);
+    List<Category> findByUser_IdAndNameStartingWith(int id, String name);
 
 
     Optional<Category> findByNameAndUserEmail(String name, String email);
 
     Optional<Category> findByNameAndUser(String name, User user);
+
+    Optional<Category> findByNameAndUser_Id(String name, int id);
+
+    List<Category> findByUser_Id(int id);
+
+    Optional<Category> findByIdAndUser_Id (int id, int userId);
+
+    List<Category> findByUser_IdAndParentIsNull(int id);
 }
