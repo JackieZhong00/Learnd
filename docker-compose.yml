@@ -1,0 +1,73 @@
+#this is what you use to list all services you want to run - each value is container name you want to use 
+services:
+  frontend: 
+    image: "nginx:alpine"
+    ports: 
+      - "80:80"
+    depends_on: 
+      - "backend"
+  backend: 
+    image: "eclipse-temurin:21-alpine"
+    ports: 
+      -  "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=/run/secrets/aws_rds_url
+      - SPRING_DATASOURCE_USERNAME=/run/secrets/aws_rds_username
+      - SPRING_DATASOURCE_PASSWORD=/run/secrets/aws_rds_password
+      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID=/run/secrets/spring_security_oauth2_client_registration_google_client_id
+      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET=/run/secrets/spring_security_oauth2_client_registration_google_client_secret
+    secrets:
+      - spring_datasource_url
+      - spring_datasource_username
+      - spring_datasource_password
+      - spring_security_oauth2_client_registration_google_client_id
+      - spring_security_oauth2_client_registration_google_client_secret
+  rag:
+    image: python:3.13-slim
+    ports:
+      - "8081:8081"
+    environment:
+      - OPENAI_API_KEY=/run/secrets/open_ai_api_key
+      - LANGCHAIN_API_KEY=/run/secrets/langchain_api_key
+      - AWS_RDS_USERNAME=/run/secrets/aws_rds_username
+      - AWS_RDS_PASSWORD=/run/secrets/aws_rds_password
+      - AWS_RDS_HOSTNAME=/run/secrets/aws_rds_hostname
+      - AWS_RDS_PORT=/run/secrets/aws_rds_port
+    depends_on: 
+      - "backend"
+    secrets:
+      - open_ai_api_key
+      - langchain_api_key
+      - aws_rds_username
+      - aws_rds_password
+      - aws_rds_hostname
+      - aws_rds_port
+
+
+secrets:
+  spring_datasource_url:
+    file: ./spring_datasource_url_secret.txt
+  spring_datasource_username:
+    file: ./spring_datasource_username_secret.txt
+  spring_datasource_password:
+    file: ./spring_datasource_password_secret.txt
+  spring_security_oauth2_client_registration_google_client_id:
+    file: ./spring_security_oauth2_client_registration_google_client_id_secret.txt
+  spring_security_oauth2_client_registration_google_client_secret:
+    file: ./spring_security_oauth2_client_registration_google_client_secret_secret.txt
+  open_ai_api_key:
+    file: ./openai_api_key_secret.txt
+  langchain_api_key:
+    file: ./langchain_api_key_secret.txt
+  aws_rds_username:
+    file: ./aws_rds_username_secret.txt
+  aws_rds_password:
+    file: ./aws_rds_password_secret.txt
+  aws_rds_hostname:
+    file: ./aws_rds_hostname_secret.txt
+  aws_rds_port:
+    file: ./aws_rds_port_secret.txt
+  aws_rds_url:
+    file: ./aws_rds_url_secret.txt
+	
+

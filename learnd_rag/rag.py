@@ -13,22 +13,30 @@ from langchain.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain.output_parsers import PydanticOutputParser
 from pydantic import BaseModel
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
+
+
 
 os.environ['LANGCHAIN_TRACING_V2'] = 'true'
-os.environ['LANGCHAIN_ENDPOINT'] = os.getenv('LANGCHAIN_ENDPOINT')
-os.environ['LANGCHAIN_API_KEY'] = os.getenv('LANGCHAIN_API_KEY')
 os.environ['LANGSMITH_PROJECT'] = "rag_microservice"
-os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY')
+os.environ['LANGCHAIN_ENDPOINT'] = "https://api.smith.langchain.com"
+
 def get_cluster_with_deck_id(deck_id):
     connection = psycopg2.connect(
-    dbname=os.getenv("postgres_dbname"),
-    user=os.getenv("postgres_user"),
-    password=os.getenv("postgres_password"),
-    host=os.getenv("postgres_host"),
-    port=os.getenv("postgres_port"),
+    dbname="postgres",
+    user = os.getenv("postgres_user"),
+    password = os.getenv("postgres_password"),
+    host="localhost",
+    port=3030
     )
+    # connection = psycopg2.connect(
+    # dbname="learnd",
+    # user = os.getenv("AWS_RDS_USERNAME"),
+    # password = os.getenv("AWS_RDS_PASSWORD"),
+    # host=os.getenv("AWS_RDS_HOSTNAME"),
+    # port=os.getenv("AWS_RDS_PORT")
+    # )
     cur = connection.cursor()
 
     #comma makes it a tuple, which is required for sql injection protection

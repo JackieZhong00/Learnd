@@ -18,13 +18,6 @@ public class MessageProducer {
 
     //uses kafkaTemplate bean to send message to the following topic with the following  message in payload
     public void sendCardUpdateMsg(String topic, CardUpdateEvent event) {
-
-        //.send(String arg1, CardUpdateEvent arg2) is created by default for kafkaFlashcardTemplate
-        // starts domino of:
-        //   producerFactory.createProducer() --> returns kafkaProducer of type KafkaProducer
-        //   kafkaProducer is used to create: producerRecord = new ProducerRecord<>(topic, message)
-        //        -producer looks like serializer for key and value to serialize the message to be sent to kafka
-        //   kafkaProducer calls .send(producerRecord) to send message to kafka broker
         kafkaCardUpdateTemplate.send(topic, event);
     }
 

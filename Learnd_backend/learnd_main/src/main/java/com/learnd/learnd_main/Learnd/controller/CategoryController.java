@@ -32,6 +32,11 @@ public class CategoryController {
         return categoryService.updateName(req.getName(), categoryId);
     }
 
+    @PatchMapping("/delete_parent/{categoryId}")
+    public ResponseEntity<Void> deleteParent(@PathVariable int categoryId) {
+        System.out.println("reached delete_parent");
+        return categoryService.deleteParentFromCategory(categoryId);
+    }
 
 
     @PatchMapping("/{categoryId}/{parentId}/update_parent")

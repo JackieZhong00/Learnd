@@ -28,4 +28,6 @@ public interface CategoryRepository extends JpaRepository<Category,Integer> {
     Optional<Category> findByIdAndUser_Id (int id, int userId);
 
     List<Category> findByUser_IdAndParentIsNull(int id);
+
+    Boolean existsByIdAndUserId(int id, int userId);
 }

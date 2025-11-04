@@ -46,16 +46,16 @@ const fetchDecks = async () : Promise<Deck[]> => {
   return response.data
 }
 
-// recurse to flatten categories into nodes + links for react-force-graph
+//flatten categories into nodes + links for react-force-graph
 const buildGraph = (categories: CategoryDTO[], parentId: number | null) => {
   let nodes: any[] = []
   let links: any[] = []
 
   for (const cat of categories) {
-    // Add node
+    // add node
     nodes.push({ id: cat.id, name: cat.name })
 
-    // Add link if there's a parent
+    // add link if there's a parent
     if (parentId !== null) {
       links.push({ source: parentId, target: cat.id })
     }
@@ -83,6 +83,10 @@ const DeckHome = () => {
   const [selectedSourceNode, setSelectedSourceNode] = useState<GraphNode | null>(null)
   const editCategoryModalHook = useEditCategoryModal()
   const testModal = useTestModal()
+  const [graphData, setGraphData] = useState<{ nodes: any[]; links: any[] }>({
+    nodes: [],
+    links: [],
+  })
 
 
   
@@ -114,10 +118,7 @@ const DeckHome = () => {
     )
     return response.data
   }
-  const [graphData, setGraphData] = useState<{ nodes: any[]; links: any[] }>({
-    nodes: [],
-    links: [],
-  })
+  
 
   const [decksQuery, treeData]= useQueries({
     queries: [
@@ -140,7 +141,7 @@ const DeckHome = () => {
     navigate(`/${param.username}/${deckName}/${deckId}`)
   }
 
-  const handleNodeClick = (node: GraphNode, event: MouseEvent) => {
+  const handleNodeClick = async (node: GraphNode, event: MouseEvent) => {
     console.log("event.detail is: " + event.detail)
     if (event.shiftKey) {
       // Step 1: Select source node
@@ -154,16 +155,44 @@ const DeckHome = () => {
       return
     }
     else if (selectedSourceNode && selectedSourceNode.id !== node.id) {
-      // Step 2: Click target node -> create link
-      setGraphData((prev) => ({
-        ...prev,
-        links: [
-          ...prev.links,
-          { source: selectedSourceNode.id, target: node.id },
-        ],
-      }))
+      //remove link if already exists between source and target
+      // console.log("graphData links: " + JSON.stringify(graphData.links))
+      // console.log("selected source node: " + JSON.stringify(selectedSourceNode))
+      // console.log("target node: " + JSON.stringify(node))
+      for (let i = 0; i < graphData.links.length; i++) {
+        console.log("checking if link exists")
+        const {source, target} = graphData.links[i]
+        if (source.id === selectedSourceNode.id && target.id === node.id) {
+          console.log("link exists, removing link")
+          await axios.patch(
+            `http://localhost:8080/api/category/delete_parent/${node.id}`,
+            {},
+            { withCredentials: true }
+          )
+          setGraphData((prev) => ({
+            ...prev,
+            links: prev.links.filter(
+              (link) =>
+                !(
+                  link.source.id === selectedSourceNode.id &&
+                  link.target.id === node.id
+                )
+            ),
+          }))
+          setSelectedSourceNode(null) // reset
+          return
+        }
+      }
+      // Step 2: add link
       try{
-        axios.patch(`http://localhost:8080/api/category/${node.id}/${selectedSourceNode.id}/update_parent`, {}, {withCredentials: true})
+        await axios.patch(`http://localhost:8080/api/category/${node.id}/${selectedSourceNode.id}/update_parent`, {}, {withCredentials: true})
+        setGraphData((prev) => ({
+          ...prev,
+          links: [
+            ...prev.links,
+            { source: selectedSourceNode.id, target: node.id },
+          ],
+        }))
       } catch (error) {
         console.log("couldn't add parent to category")
       }
@@ -299,7 +328,7 @@ const DeckHome = () => {
           }}
           className="cursor-pointer"
         >
-          Start Review
+          Review All Due Cards
         </button>
       </div>
       <div className="flex flex-row mt-[20px]">

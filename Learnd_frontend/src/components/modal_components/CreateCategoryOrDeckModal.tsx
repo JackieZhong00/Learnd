@@ -31,7 +31,7 @@ const CreateCategoryOrDeckModal = () => {
     try {
       await axios.post(
         `http://localhost:8080/api/category/create`,
-        { name: categoryName },
+        { name: categoryName.toLowerCase() },
         { withCredentials: true }
       )
     } catch (error) {

@@ -7,7 +7,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.learnd.learnd_main.Learnd.repo.UserRepository;
-
 import java.util.Optional;
 
 @Service

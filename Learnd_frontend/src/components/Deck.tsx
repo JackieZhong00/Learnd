@@ -452,8 +452,8 @@ const Deck = () => {
                   <div></div>
                 )}
                 <div className="">
-                  {cards.slice(0, -1).map((card) => (
-                    <div className="">
+                  {cards.slice(0, -1).map((card, index) => (
+                    <div className="" key={index}>
                       <button
                         className="py-[10px] px-[10px] my-[10px] deckLabel cursor-pointer w-full"
                         onClick={() => {

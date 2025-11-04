@@ -13,6 +13,7 @@ type TestModalProps = {
 const TestModal = ({isReview} : TestModalProps) => {
     const useTestModal = useTestModalState()
     const [cards, setCards] = useState<FlashcardDTO[]>([])
+    const [showEndScreen, setShowEndScreen] = useState<boolean>(false)
     const [pageNumber, setPageNumber] = useState<number>(0)
     const [isShowingAnswer, setIsShowingAnswer] = useState<boolean>(false)
     const [cardIndex, setCardIndex] = useState<number>(0)
@@ -23,20 +24,33 @@ const TestModal = ({isReview} : TestModalProps) => {
     const param = useParams()
     
     const fetchCards = async () => {
+      console.log("fetching more...")
       const response = await axios.get(
         `http://localhost:8080/api/flashcard/getDecksCards/${
           param.deck_id
         }?pageNumber=${pageNumber}&pageSize=100`,
         { withCredentials: true }
       )
+      if (response.data.content.length == 0) {
+        setShowEndScreen(true)
+        return
+      }
       setPageNumber(pageNumber + 1)
       setCards(response.data.content)
     }
 
+    //isReview is set to true and this modal is rendered in DeckHome.tsx component - so user can review all cards that are due 
+    //is Review is set to false in deck.tsx, which mean only deck specific cards are fetched 
     useEffect(() => {
       if (isReview) {
-        return
+        try {
+          fetchReviewCards()
+        }
+        catch (error) {
+          console.log("error: " + error)
+        }
       }
+      else {
         try {
             fetchCards()
         } catch (error) {
@@ -44,6 +58,7 @@ const TestModal = ({isReview} : TestModalProps) => {
             // setPageNumber(pageNumber - 1)
             // setTimeout(fetchCards, 1000)
         }
+      }
     }, [fetchMore])
 
     const fetchReviewCards = async () => {
@@ -87,19 +102,19 @@ const TestModal = ({isReview} : TestModalProps) => {
       >
         Exit
       </button>
-      {cardIndex == cards.length ? (
-        <div>
-            <p>End of cards! You can close the review session now.</p>
-            <button onClick={() => useTestModal.setFalse()}>Exit Session</button>
-        </div>) : (
-        <div></div>)}
-      {cards.length == 0 ? (
+      {showEndScreen ? 
+      ( <div>
+          <p>End of cards! You can close the review session now.</p>
+          <button onClick={() => useTestModal.setFalse()}>Exit Session</button>
+        </div>
+      ) :
+      cards.length == 0 ? (
         <div>
           No cards exist in the deck. Create cards for a review session.
         </div>
       ) : (
         <div>
-          {(isShowingAnswer && cardIndex != cards.length-1) ? (
+          {isShowingAnswer && cardIndex != cards.length - 1 ? (
             <div>
               <p>{cards[cardIndex].answer}</p>
               <input
@@ -116,7 +131,12 @@ const TestModal = ({isReview} : TestModalProps) => {
               <div className="">0</div>
               <div className="">10</div>
               {sliderClicked ? (
-                <button onClick={handleSubmitDifficulty} className="cursor-pointer">Next</button>
+                <button
+                  onClick={handleSubmitDifficulty}
+                  className="cursor-pointer"
+                >
+                  Next
+                </button>
               ) : (
                 <p>Rank the card's difficulty to move onto the next card</p>
               )}
@@ -133,13 +153,17 @@ const TestModal = ({isReview} : TestModalProps) => {
               </button>
               <button
                 onClick={() => {
-                  if (cardIndex <= cards.length - 1) {
-                    setCardIndex(cardIndex + 1)
-                    if (cardIndex == cards.length - 1 && !isReview) {
-                      setFetchMore(prev => !prev)
+                  console.log("card index: " + cardIndex)
+                  console.log("cards length: " + cards.length)
+                  if (cardIndex + 1 <= cards.length-1) {
+                    setCardIndex(prev=>prev + 1)
+                    console.log("card index after plus 1: " + cardIndex)
+                    if (cardIndex + 1 == cards.length - 1 && !isReview) {
+                      console.log("setting fetchmore, from: " + fetchMore)
+                      setFetchMore((prev) => !prev)
+                      console.log("fetchmore set to: " + fetchMore)
                     }
                   }
-                  
                 }}
               >
                 Skip

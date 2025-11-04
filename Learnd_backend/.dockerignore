@@ -1,0 +1,10 @@
+**/.idea/
+**/HELP.md
+**/target/
+**/*.proto
+git/
+.gitignore
+*.iml
+**/*.log
+.DS_Store
+Thumbs.db
