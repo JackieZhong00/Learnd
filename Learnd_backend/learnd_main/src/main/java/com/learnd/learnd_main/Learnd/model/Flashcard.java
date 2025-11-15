@@ -2,6 +2,8 @@ package com.learnd.learnd_main.Learnd.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 public class Flashcard extends Card {
     @Id
@@ -20,6 +22,8 @@ public class Flashcard extends Card {
     @ManyToOne
     @JoinColumn(name = "fk_user")
     private User user;
+
+    private boolean requiresUserInput;
 
     public Flashcard(){
         super("");

@@ -29,4 +29,5 @@ public interface DeckRepository extends JpaRepository<Deck,Integer> {
     Optional<Integer> findIdByNameAndUser(String name, User user);
 
     void deleteById(int id);
+
 }

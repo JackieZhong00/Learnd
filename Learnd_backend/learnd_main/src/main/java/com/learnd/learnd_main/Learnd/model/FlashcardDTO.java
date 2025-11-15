@@ -7,12 +7,14 @@ public class FlashcardDTO {
     String question;
     String answer;
     LocalDate dateOfNextUsage;
+    LocalDate creationDate;
 
     public FlashcardDTO(Flashcard flashcard) {
         this.id = flashcard.getId();
         this.question = flashcard.getQuestion();
         this.answer = flashcard.getAnswer();
         this.dateOfNextUsage = flashcard.getDateOfNextUsage();
+        this.creationDate = flashcard.getCreationDate();
     }
 
     public FlashcardDTO() {

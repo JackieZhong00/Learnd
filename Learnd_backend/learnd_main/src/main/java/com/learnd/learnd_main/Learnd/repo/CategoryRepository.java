@@ -30,4 +30,6 @@ public interface CategoryRepository extends JpaRepository<Category,Integer> {
     List<Category> findByUser_IdAndParentIsNull(int id);
 
     Boolean existsByIdAndUserId(int id, int userId);
+
+    Boolean existsByNameAndUserId(String name, int userId);
 }

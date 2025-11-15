@@ -2,6 +2,8 @@ package com.learnd.learnd_main.Learnd.service;
 
 import com.learnd.learnd_main.Learnd.model.*;
 import com.learnd.learnd_main.Learnd.repo.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,10 @@ import java.util.Optional;
 
 @Component
 public class DeckService {
+
+    @PersistenceContext
+    EntityManager entityManager;
+
     private final DeckRepository deckRepository;
     private final MultipleChoiceCardRepository multipleChoiceCardRepository;
     private final FlashcardRepository flashcardRepository;
@@ -31,24 +37,24 @@ public class DeckService {
         this.categoryRepository = categoryRepository;
     }
 
-
-    public Deck save(Deck deck) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        Optional<User> user = userRepository.findByEmail(email);
-        user.ifPresentOrElse(
-                fetchedUser -> {
-                    deck.setUser(user.get());
-                    deckRepository.save(deck);
-                },
-                () -> {throw new UsernameNotFoundException("user not found, couldn't save deck");}
-        );
-
-        return deck;
+    private int getUserIdFromPrincipal() {
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userPrincipal.getUserId();
     }
+
+
 
     public Deck createDeck(DeckRequest request) {
         Deck deck = new Deck();
         deck.setName(request.getName());
+//        int userId = getUserIdFromPrincipal();
+//        User user = entityManager.getReference(User.class, userId);
+//        deck.setUser(user);
+//        if (categoryRepository.existsByNameAndUserId(request.getCategoryName(), userId)) {
+//
+//        }
+//        Category categoryRef = entityManager.getReference(Category.class, request.getCategoryName());
+//        deck.setCategory(categoryRef);
 
         //find user
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
