@@ -213,7 +213,7 @@ def generate_recommendation(state):
     prompt = ChatPromptTemplate.from_template(template)
     generate = (
     prompt
-    | ChatOpenAI(temperature=0.7)
+    | ChatOpenAI(model ="gpt-3.5-turbo", temperature=0.7)
     | output_parser
     )
     prompt_arg = {"deck_name":state.deck_name, "categories": state.categories, "cluster": state.cluster}
@@ -291,7 +291,7 @@ def compare_to_card_vectors(state):
     prompt = ChatPromptTemplate.from_template(template)
     generate_answer = (
     prompt
-    | ChatOpenAI(temperature=0.7)
+    | ChatOpenAI(model ="gpt-3.5-turbo", temperature=0.7)
     | StrOutputParser()
     )
     prompt_arg = {"generated_question": state.generated_question, "generated_answer": state.generated_answer, "retrieved_question": state.retrieved_question, "retrieved_answer": state.retrieved_answer}
@@ -305,7 +305,7 @@ def compare_to_cluster_vectors(state):
     prompt = ChatPromptTemplate.from_template(template)
     generate_answer = (
     prompt
-    | ChatOpenAI(temperature=0.7)
+    | ChatOpenAI(model ="gpt-3.5-turbo", temperature=0.7)
     | StrOutputParser()
     )
     prompt_arg = {
@@ -325,7 +325,7 @@ def find_hallucinations(state):
     prompt = ChatPromptTemplate.from_template(template)
     grader_chain = (
     prompt
-    | ChatOpenAI(temperature=0.7)
+    | ChatOpenAI(model ="gpt-3.5-turbo", temperature=0.7)
     | StrOutputParser()
     )
     prompt_arg = {

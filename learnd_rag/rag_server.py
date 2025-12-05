@@ -1,10 +1,15 @@
 import grpc
 from concurrent import futures
-import event_dispatcher_pb2
-import event_dispatcher_pb2_grpc
+import proto.event_dispatcher_pb2 as event_dispatcher_pb2
+import proto.event_dispatcher_pb2_grpc as event_dispatcher_pb2_grpc
 from rag import *
+from answer_grader_rag import *
 
+#this is the grpc object that handles incoming grpc requests 
 class EventDispatcherServicer(event_dispatcher_pb2_grpc.EventDispatcherServicer):
+    def __init__ (self):
+        self.recommender = compile_graph
+        self.answer_grader = compile_answer_grader
     def DispatchCardUpdates(self, request, context):
         print("Received request:")
         print(request)
@@ -34,5 +39,6 @@ def serve():
     print("gRPC server started on port 50051")
     server.wait_for_termination()
 
+#this function runs if this file is executed directly
 if __name__ == '__main__':
     serve()

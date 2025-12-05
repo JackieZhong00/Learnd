@@ -23,6 +23,7 @@ public class Flashcard extends Card {
     @JoinColumn(name = "fk_user")
     private User user;
 
+    @Column
     private boolean requiresUserInput;
 
     public Flashcard(){
@@ -57,6 +58,13 @@ public class Flashcard extends Card {
     }
     public Deck getDeck(){
         return this.deck;
+    }
+
+    public boolean getRequiresUserInput() {
+        return requiresUserInput;
+    }
+    public void setRequiresUserInput(boolean requiresUserInput) {
+        this.requiresUserInput = requiresUserInput;
     }
 
 

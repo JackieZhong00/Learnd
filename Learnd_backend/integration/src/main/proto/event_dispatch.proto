@@ -10,6 +10,22 @@ service EventDispatcher {
   rpc DispatchCardUpdates (BatchMessageGRPC) returns (DispatchResultGRPC);
 }
 
+service FlashcardToGradeDispatcher {
+  rpc DispatchFlashcardToGrade (FlashcardToGrade) returns (FlashcardGrade);
+}
+
+message FlashcardGrade {
+  int32 grade = 1;
+}
+
+message FlashcardToGrade {
+  string category = 1;
+  string deckName = 2;
+  string question = 3;
+  string answer = 4;
+  int64 userId = 5;
+}
+
 
 message CardUpdateEventGRPC {
   string updateType = 1;

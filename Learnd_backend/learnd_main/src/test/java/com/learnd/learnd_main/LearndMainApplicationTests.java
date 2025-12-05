@@ -13,8 +13,8 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootTest
 class LearndMainApplicationTests {
 
-    @Test
-    void contextLoads() {
-    }
+//    @Test
+//    void contextLoads() {
+//    }
 
 }

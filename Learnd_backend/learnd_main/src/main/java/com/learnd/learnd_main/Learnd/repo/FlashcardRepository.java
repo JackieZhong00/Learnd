@@ -1,5 +1,6 @@
 package com.learnd.learnd_main.Learnd.repo;
 
+import com.learnd.learnd_main.Learnd.model.DeckAndCategoryNameDTO;
 import com.learnd.learnd_main.Learnd.model.Flashcard;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,4 +33,14 @@ public interface FlashcardRepository extends JpaRepository<Flashcard, Integer> {
     @Modifying
     @Query("UPDATE Flashcard f SET f.pastDue = true WHERE f.user = :userId AND f.dateOfNextUsage = :date")
     int markPastDueByUserAndDate(@Param("userId") int userId, @Param("date") LocalDate date);
+
+    @Query(value = """
+       SELECT deck.name AS deckName, category.name as categoryName
+       FROM flashcard 
+           INNER JOIN deck ON flashcard.fk_deck_id = deck.id 
+           INNER JOIN category ON deck.fk_category = category.id
+       WHERE flashcard.id = :id
+       """, nativeQuery = true)
+    DeckAndCategoryNameDTO findDeckAndCategoryName(@Param("id") Long id);
+
 }

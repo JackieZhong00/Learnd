@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class RagGrpcClient {
     private final EventDispatcherGrpc.EventDispatcherBlockingStub blockingStub;
+    private final FlashcardToGradeDispatcherGrpc.FlashcardToGradeDispatcherBlockingStub flashcardToGradeStub;
 
     public RagGrpcClient() {
         ManagedChannel channel = ManagedChannelBuilder
@@ -17,6 +18,7 @@ public class RagGrpcClient {
                         .build();
         System.out.println("Grpc Client started on port 50051");
         this.blockingStub = EventDispatcherGrpc.newBlockingStub(channel);
+        this.flashcardToGradeStub = FlashcardToGradeDispatcherGrpc.newBlockingStub(channel);
     }
 
     /** Construct client for accessing RouteGuide server using the existing channel. */
@@ -39,5 +41,14 @@ public class RagGrpcClient {
             throw new RuntimeException("couldn't make grpc call");
         }
     };
+    public FlashcardGrade sendCardToGrade(FlashcardToGrade flashcardToGrade) {
+        try {
+            return flashcardToGradeStub.dispatchFlashcardToGrade(flashcardToGrade);
+        } catch (StatusRuntimeException e) {
+            System.out.println("couldn't make grpc call");
+            System.out.println("exception message: " + e.getMessage());
+            throw new RuntimeException("couldn't make grpc call");
+        }
+    }
 }
 

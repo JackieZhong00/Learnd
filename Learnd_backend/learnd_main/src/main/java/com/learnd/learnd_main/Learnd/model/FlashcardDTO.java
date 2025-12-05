@@ -8,6 +8,7 @@ public class FlashcardDTO {
     String answer;
     LocalDate dateOfNextUsage;
     LocalDate creationDate;
+    boolean requiresUserInput;
 
     public FlashcardDTO(Flashcard flashcard) {
         this.id = flashcard.getId();
@@ -15,6 +16,7 @@ public class FlashcardDTO {
         this.answer = flashcard.getAnswer();
         this.dateOfNextUsage = flashcard.getDateOfNextUsage();
         this.creationDate = flashcard.getCreationDate();
+        this.requiresUserInput = flashcard.getRequiresUserInput();
     }
 
     public FlashcardDTO() {

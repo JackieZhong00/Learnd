@@ -1,5 +1,8 @@
 package com.learnd.learnd_main.Learnd.controller;
 
+import com.learnd.integration.grpc.FlashcardGrade;
+import com.learnd.integration.grpc.FlashcardToGrade;
+import com.learnd.integration.grpc.RagGrpcClient;
 import com.learnd.integration.kafka.model.CardUpdateEvent;
 import com.learnd.integration.kafka.producer.MessageProducer;
 import com.learnd.learnd_main.Learnd.model.*;
@@ -28,13 +31,16 @@ public class FlashcardController {
     private final DeckService deckService;
     private final FlashcardRepository flashcardRepository;
     private final MessageProducer messageProducer;
+    private final RagGrpcClient ragGrpcClient;
 
     public FlashcardController(FlashcardService flashcardService, DeckService deckService,
-                               FlashcardRepository flashcardRepository, MessageProducer messageProducer) {
+                               FlashcardRepository flashcardRepository, MessageProducer messageProducer
+                               ,RagGrpcClient ragGrpcClient) {
         this.flashcardService = flashcardService;
         this.deckService = deckService;
         this.flashcardRepository = flashcardRepository;
         this.messageProducer = messageProducer;
+        this.ragGrpcClient = ragGrpcClient;
     }
 
     @PostMapping("/{deckId}/createcard")
@@ -127,5 +133,20 @@ public class FlashcardController {
     @GetMapping("/getAllDueCards")
     public List<FlashcardDTO> getAllDueCards() {
         return flashcardService.getAllDueCards();
+    }
+
+    @PostMapping("/grade")
+    public int grade(@RequestBody FlashcardDTO flashcardDTO){
+        Flashcard card = flashcardRepository.findById(flashcardDTO.getId());
+        DeckAndCategoryNameDTO names = flashcardRepository.findDeckAndCategoryName((long)flashcardDTO.getId());
+        FlashcardToGrade grpcRequest = FlashcardToGrade.newBuilder()
+                .setCategory(names.getCategoryName())
+                .setDeckName(names.getDeckName())
+                .setQuestion(card.getQuestion())
+                .setAnswer(card.getAnswer())
+                .setUserId(card.getUser().getId())
+                .build();
+        FlashcardGrade result = ragGrpcClient.sendCardToGrade(grpcRequest);
+        return result.getGrade();
     }
 }

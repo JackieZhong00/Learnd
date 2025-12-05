@@ -13,6 +13,10 @@ public class CardAccuracyLog {
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="fk_flashcard")
     private Flashcard flashcard;
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="fk_userid")
+    private User user;
     private int accuracy;
     private LocalDate date;
 
@@ -35,9 +39,6 @@ public class CardAccuracyLog {
         return date;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public void setFlashcard(Flashcard card) {
         this.flashcard = card;
