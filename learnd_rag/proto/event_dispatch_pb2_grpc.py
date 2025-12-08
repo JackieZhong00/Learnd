@@ -106,7 +106,7 @@ class FlashcardToGradeDispatcherStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.DispatchFlashcardToGrade = channel.unary_unary(
+        self.DispatchFlashcardToGrade = channel.unary_stream(
                 '/FlashcardToGradeDispatcher/DispatchFlashcardToGrade',
                 request_serializer=event__dispatch__pb2.FlashcardToGrade.SerializeToString,
                 response_deserializer=event__dispatch__pb2.FlashcardGrade.FromString,
@@ -125,7 +125,7 @@ class FlashcardToGradeDispatcherServicer(object):
 
 def add_FlashcardToGradeDispatcherServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'DispatchFlashcardToGrade': grpc.unary_unary_rpc_method_handler(
+            'DispatchFlashcardToGrade': grpc.unary_stream_rpc_method_handler(
                     servicer.DispatchFlashcardToGrade,
                     request_deserializer=event__dispatch__pb2.FlashcardToGrade.FromString,
                     response_serializer=event__dispatch__pb2.FlashcardGrade.SerializeToString,
@@ -152,7 +152,7 @@ class FlashcardToGradeDispatcher(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(
+        return grpc.experimental.unary_stream(
             request,
             target,
             '/FlashcardToGradeDispatcher/DispatchFlashcardToGrade',

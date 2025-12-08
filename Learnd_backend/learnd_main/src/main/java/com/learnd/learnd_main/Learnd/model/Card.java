@@ -20,14 +20,18 @@ public abstract class Card {
     @Column (name = "past_due")
     private boolean pastDue;
 
+    @Column
     private LocalDate creationDate;
 
-    private int previousTimeInterval;
+    @Column(name="previous_time_interval")
+    private int previousTimeInterval = 1;
+
     public Card () {
         this.dateOfNextUsage = Instant.now()
                 .plus(1, ChronoUnit.DAYS)       // add 1 day
                 .atZone(ZoneOffset.UTC)          // interpret in UTC
                 .toLocalDate();
+        this.creationDate = LocalDate.now();
     }
 
     public Card(String question) {
@@ -41,6 +45,7 @@ public abstract class Card {
     public LocalDate getDateOfNextUsage() {
         return dateOfNextUsage;
     }
+    public int getPreviousTimeInterval() {return previousTimeInterval;}
     public void setQuestion(String question) {
         this.question = question;
     }
@@ -50,5 +55,8 @@ public abstract class Card {
     public boolean getPastDue() {return pastDue;}
     public void setPastDue(boolean pastDue) {this.pastDue = pastDue;}
     public void setCreationDate(LocalDate creationDate) {this.creationDate = creationDate;}
+    public void setPreviousTimeInterval(int previousTimeInterval) {
+        if (previousTimeInterval < 1) {this.previousTimeInterval = 1;}
+        this.previousTimeInterval = previousTimeInterval;}
 }
 

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useState } from 'react'
 import axios from 'axios'
 import useCreateCardModal from '../../hooks/useCreateCardModal'
+import { set } from 'zod/v4'
 
 
 //import and use react hook form to register and submit the form - only validation required is that all fields must have something
@@ -11,6 +12,7 @@ import useCreateCardModal from '../../hooks/useCreateCardModal'
 export type CardSubmitType = {
   question: string
   answer: string
+  requiresUserInput: boolean
 }
 
 const CreateFlashCardModal= () => {
@@ -18,11 +20,15 @@ const CreateFlashCardModal= () => {
   const createCardModalHook = useCreateCardModal()
   const [question, setQuestion] = useState<string>("")
   const [answer, setAnswer] = useState<string>("")
+  const [requiresUserInput, setRequiresUserInput] = useState<boolean>(false)
   const handleSubmit = async (e : React.FormEvent ) => {
-    e.preventDefault()
+    e.preventDefault() // prevent page refresh
     try {
-      const card : CardSubmitType = {question: question, answer: answer}
+      const card : CardSubmitType = {question: question, answer: answer, requiresUserInput: requiresUserInput}
       await axios.post(`http://localhost:8080/api/flashcard/${param.deck_id}/createcard`, card, {withCredentials: true})
+      setQuestion('')
+      setAnswer('')
+      setRequiresUserInput(false)
       toast.success("Flashcard Created!")
     } catch (error) {
       console.log("error: " + error)
@@ -66,6 +72,7 @@ const CreateFlashCardModal= () => {
               ></textarea>
             </div>
           </div>
+          <button onClick={() => setRequiresUserInput(!requiresUserInput)}>require typed response when tested</button>
           <button type="submit" className="cursor-pointer">
             submit        
           </button>

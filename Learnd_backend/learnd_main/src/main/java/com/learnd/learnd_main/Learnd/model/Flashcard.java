@@ -23,12 +23,17 @@ public class Flashcard extends Card {
     @JoinColumn(name = "fk_user")
     private User user;
 
-    @Column
+    @Column(name = "requires_user_input")
     private boolean requiresUserInput;
 
     public Flashcard(){
         super("");
         this.answer = "";
+    }
+    public Flashcard(FlashcardSubmitRequest card) {
+        super(card.getQuestion());
+        this.answer = card.getAnswer();
+        this.requiresUserInput = card.getRequiresUserInput();
     }
 
     public Flashcard(String q, String ans) {

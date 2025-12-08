@@ -14,6 +14,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain.output_parsers import PydanticOutputParser
 from pydantic import BaseModel
 from tavily import TavilyClient
+import textwrap
 # from dotenv import load_dotenv
 # load_dotenv()
 
@@ -33,27 +34,6 @@ class AnswerGraphState(BaseModel):
 
 
 def web_search(state):
-    # template = """
-    #   You are an working professional who teaches this specific topic: {category}. 
-    #   Using related facts from reliable web sources related to this topic, such as {facts},
-    #   grade how correct the following answer is to the question asked.
-    #   The question asked: {question}. The answer to grade: {answer}.
-    #   Grade the answer on a scale of 0 to 100 where 0 is completely incorrect
-    #   and 100 is the perfect answer. Provide only the numeric grade as output.
-
-    # """
-    # prompt = ChatPromptTemplate.from_template(template)
-    # generate_queries = (
-    # prompt
-    # | ChatOpenAI(model="gpt-3.5-turbo",temperature=0.7)
-    # | StrOutputParser()
-    # )
-    
-    # response = generate_queries.invoke({
-    #     category: state.category,
-    #     question: state.question,
-    #     answer: state.answer,     
-    # })
     searchPrompt = """
     Act as an expert in {state.category} to find as much relevant, factual,
     trustworthy information as possible to answer
@@ -62,7 +42,7 @@ def web_search(state):
     tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
     response = tavily_client.search(searchPrompt)
     state.facts = response['answer']
-    return "index_documents"
+    return state
 
 def index_and_grade(state):
     connection = psycopg2.connect(
@@ -84,25 +64,41 @@ def index_and_grade(state):
     for e in embeddings:
         cur.execute(f"INSERT INTO grading_embeddings (userid, cardid, embedding) VALUES ({state.userId}, {state.cardId}, {e})  ")
 
-    #need to split and embed the response stored in state.facts 
-    #then need to figure out how to store into embeddings table
-    #not sure if i need to provide a specific primary key for the insert 
-    #statement or if the autogenerate setting for the table is set already 
-
-    # cur.execute("INSERT INTO embeddings ")
 
 
-    #then grade the answer by pulling the most useful information
-    #from the indexed documents 
+    grading_prompt = textwrap.dedent("""You are an professional educator and industry expert in {category}.
+        Given the question: {question}
+        , the provided answer: {answer}
+        , and the following relevant information: {facts}
+        , grade how accurate the answer is in ansewering the question
+        on a scale of 0 to 100 where 0 is completely inaccurate and 100 is completely accurate.""")
+
+    finalPrompt = ChatPromptTemplate.from_template(grading_prompt)    
+    llm = ChatOpenAI(model ="gpt-3.5-turbo", temperature=0.7)
+    grader_chain = (
+        finalPrompt
+        | llm
+        | StrOutputParser()
+    )
+    result = grader_chain.invoke({
+        "category": state.category,
+        "question": state.question,
+        "answer": state.answer,
+        "facts": state.facts})
+
+    state.grade = int(result)
     
-    return END
+    cur.close()
+    connection.commit()
+    connection.close()
+    return state
 
 
 
 def compile_answer_grader(answered_card):
     workflow = StateGraph(AnswerGraphState)
     workflow.add_node("web_search", web_search)
-    workflow.add_node("index_documents", index_documents)
+    workflow.add_node("index_and_grade", index_and_grade)
     workflow.add_edge(START, "web_search")
     workflow.add_edge("web_search", "index_and_grade")
     workflow.add_edge("index_and_grade", END)
@@ -115,5 +111,7 @@ def compile_answer_grader(answered_card):
         answer = answered_card.messages[1].text,
         grade = 0
     )
+    app = workflow.run(state_to_run)
 
-    return 
+    return app.grade
+ 

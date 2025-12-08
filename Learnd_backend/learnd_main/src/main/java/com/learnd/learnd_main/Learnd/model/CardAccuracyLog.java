@@ -22,6 +22,12 @@ public class CardAccuracyLog {
 
     public CardAccuracyLog() {}
 
+    public CardAccuracyLog(Flashcard flashcard, User user, int accuracy, LocalDate date) {
+        this.flashcard = flashcard;
+        this.user = user;
+        this.accuracy = accuracy;
+        this.date = LocalDate.now();
+    }
 
     public long getId() {
         return id;
@@ -50,6 +56,9 @@ public class CardAccuracyLog {
 
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+    public void setUser(User user) {
+        this.user = user;
     }
 }
 

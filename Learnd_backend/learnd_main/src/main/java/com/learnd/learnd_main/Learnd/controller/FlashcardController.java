@@ -6,16 +6,19 @@ import com.learnd.integration.grpc.RagGrpcClient;
 import com.learnd.integration.kafka.model.CardUpdateEvent;
 import com.learnd.integration.kafka.producer.MessageProducer;
 import com.learnd.learnd_main.Learnd.model.*;
+import com.learnd.learnd_main.Learnd.repo.CardAccuracyLogRepository;
 import com.learnd.learnd_main.Learnd.repo.FlashcardRepository;
 import com.learnd.learnd_main.Learnd.service.DeckService;
 import com.learnd.learnd_main.Learnd.service.FlashcardService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping(path = "/api/flashcard")
@@ -32,34 +36,43 @@ public class FlashcardController {
     private final FlashcardRepository flashcardRepository;
     private final MessageProducer messageProducer;
     private final RagGrpcClient ragGrpcClient;
+    private final CardAccuracyLogRepository cardAccuracyLogRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public FlashcardController(FlashcardService flashcardService, DeckService deckService,
                                FlashcardRepository flashcardRepository, MessageProducer messageProducer
-                               ,RagGrpcClient ragGrpcClient) {
+                               ,RagGrpcClient ragGrpcClient, CardAccuracyLogRepository cardAccuracyLogRepository) {
         this.flashcardService = flashcardService;
         this.deckService = deckService;
         this.flashcardRepository = flashcardRepository;
         this.messageProducer = messageProducer;
         this.ragGrpcClient = ragGrpcClient;
+        this.cardAccuracyLogRepository = cardAccuracyLogRepository;
+    }
+
+    private int getUserIdFromPrincipal() {
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userPrincipal.getUserId();
     }
 
     @PostMapping("/{deckId}/createcard")
-    public FlashcardDTO createCard(@PathVariable int deckId, @RequestBody FlashcardSubmitRequest card) {
+    public ResponseEntity<FlashcardDTO> createCard(@PathVariable int deckId, @RequestBody FlashcardSubmitRequest card) {
         //get Deck associated with Deck name and set the card's deck variable to this deck object before saving the card
         Deck deck = deckService.getDeckById(deckId);
-        User user = deck.getUser();
-        Flashcard flashcard = new Flashcard(card.getQuestion(), card.getAnswer());
+        User userRef = entityManager.getReference(User.class, getUserIdFromPrincipal());
+        Flashcard flashcard = new Flashcard(card);
         flashcard.setDeck(deck);
-        flashcard.setUser(user);
-        Flashcard createdCard = flashcardService.save(flashcard);
+        flashcard.setUser(userRef);
+        flashcardService.save(flashcard);
         List<String> answers = new ArrayList<>();
-        answers.add(createdCard.getAnswer());
-        CardUpdateEvent event = new CardUpdateEvent("create", createdCard.getId(), deck.getId(),
-                deck.getUser().getId(), false, createdCard.getQuestion(), answers);
+        answers.add(flashcard.getAnswer());
+        CardUpdateEvent event = new CardUpdateEvent("create", flashcard.getId(), deck.getId(),
+                deck.getUser().getId(), false, flashcard.getQuestion(), answers);
 
         messageProducer.sendCardUpdateMsg("create", event);
 
-        return new FlashcardDTO(flashcardService.save(flashcard));
+        return ResponseEntity.ok().body(new FlashcardDTO(flashcard));
     }
 
     @PatchMapping("/updateCard/{cardId}")
@@ -93,15 +106,7 @@ public class FlashcardController {
         Page<Flashcard> pg = flashcardRepository.findAllByDeckId(deckId, pageable);
         Page<FlashcardDTO> page = pg.map(FlashcardDTO::new);
 
-        PagedModel<FlashcardDTO> finalpg = new PagedModel<>(page);
-        for (FlashcardDTO dto : finalpg.getContent()) {
-            System.out.println("Card ID: " + dto.getId());
-            System.out.println("Question: " + dto.getQuestion());
-            System.out.println("Answer: " + dto.getAnswer());
-            System.out.println("Next usage: " + dto.getDateOfNextUsage());
-            System.out.println("-----------");
-        }
-        return finalpg;
+        return new PagedModel<>(page);
     }
 
     @GetMapping("/getCardsDueToday")
@@ -136,7 +141,7 @@ public class FlashcardController {
     }
 
     @PostMapping("/grade")
-    public int grade(@RequestBody FlashcardDTO flashcardDTO){
+    public CompletableFuture<ResponseEntity<Void>> grade(@RequestBody FlashcardDTO flashcardDTO){
         Flashcard card = flashcardRepository.findById(flashcardDTO.getId());
         DeckAndCategoryNameDTO names = flashcardRepository.findDeckAndCategoryName((long)flashcardDTO.getId());
         FlashcardToGrade grpcRequest = FlashcardToGrade.newBuilder()
@@ -146,7 +151,18 @@ public class FlashcardController {
                 .setAnswer(card.getAnswer())
                 .setUserId(card.getUser().getId())
                 .build();
-        FlashcardGrade result = ragGrpcClient.sendCardToGrade(grpcRequest);
-        return result.getGrade();
+
+        //for full async -> free controller thread to handle other http requests
+        //CompletableFuture allows this request to be abandoned momentarily and resumed when the future is resolved
+        //so the return isn't made until a response is received
+        CompletableFuture<FlashcardGrade> gradeFuture = ragGrpcClient.sendCardToGrade(grpcRequest);
+        return gradeFuture.thenApply(response -> {
+            int grade = response.getGrade();
+            int userId = getUserIdFromPrincipal();
+            User userRef = entityManager.getReference(User.class, userId);
+            CardAccuracyLog log = new CardAccuracyLog(card,userRef,grade,LocalDate.now());
+            cardAccuracyLogRepository.save(log);
+            return ResponseEntity.ok().build();
+        });
     }
 }

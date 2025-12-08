@@ -9,6 +9,7 @@ public class FlashcardDTO {
     LocalDate dateOfNextUsage;
     LocalDate creationDate;
     boolean requiresUserInput;
+    int previousTimeInterval;
 
     public FlashcardDTO(Flashcard flashcard) {
         this.id = flashcard.getId();
@@ -17,6 +18,7 @@ public class FlashcardDTO {
         this.dateOfNextUsage = flashcard.getDateOfNextUsage();
         this.creationDate = flashcard.getCreationDate();
         this.requiresUserInput = flashcard.getRequiresUserInput();
+        this.previousTimeInterval = flashcard.getPreviousTimeInterval();
     }
 
     public FlashcardDTO() {

@@ -11,7 +11,7 @@ service EventDispatcher {
 }
 
 service FlashcardToGradeDispatcher {
-  rpc DispatchFlashcardToGrade (FlashcardToGrade) returns (FlashcardGrade);
+  rpc DispatchFlashcardToGrade (FlashcardToGrade) returns (stream FlashcardGrade);
 }
 
 message FlashcardGrade {

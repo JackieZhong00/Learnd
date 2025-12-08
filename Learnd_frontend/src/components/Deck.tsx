@@ -19,6 +19,7 @@ export type FlashcardDTO = {
   question: string
   answer: string
   dateOfNextUsage: Date
+  requiresUserInput: boolean
 }
 
 export type CardUpdateType = {
@@ -31,6 +32,7 @@ export const emptyFlashcardDTO: FlashcardDTO = {
   answer: '',
   id: 0,
   dateOfNextUsage: new Date(),
+  requiresUserInput: false
 }
 
 type DeckRenameType = {
@@ -57,7 +59,7 @@ const Deck = () => {
   const [maxPageIndex, setMaxPageIndex] = useState<number>(0)
   const [isRecommendationDisplayed, setIsRecommendationDisplayed] = useState<boolean>(false)
 
-    console.log("pageNumber:  " + pageNumber)
+
   useEffect(() => {
     if (cardSearch.trim() === '') {
       //trim removes all space characters
@@ -227,7 +229,7 @@ const Deck = () => {
   const handleAddRecommendation = async (e : React.FormEvent) => {
     e.preventDefault()
     try {
-      const card: CardSubmitType = { question: toDisplay.question, answer: toDisplay.answer}
+      const card: CardSubmitType = { question: toDisplay.question, answer: toDisplay.answer, requiresUserInput: toDisplay.requiresUserInput }
       await axios.post(
         `http://localhost:8080/api/flashcard/${param.deck_id}/createcard`,
         card,
