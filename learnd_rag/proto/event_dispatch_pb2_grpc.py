@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import event_dispatch_pb2 as event__dispatch__pb2
+from proto import event_dispatch_pb2 as proto_dot_event__dispatch__pb2
 
 GRPC_GENERATED_VERSION = '1.74.0'
 GRPC_VERSION = grpc.__version__
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in event_dispatch_pb2_grpc.py depends on'
+        + f' but the generated code in proto/event_dispatch_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -36,8 +36,8 @@ class EventDispatcherStub(object):
         """
         self.DispatchCardUpdates = channel.unary_unary(
                 '/EventDispatcher/DispatchCardUpdates',
-                request_serializer=event__dispatch__pb2.BatchMessageGRPC.SerializeToString,
-                response_deserializer=event__dispatch__pb2.DispatchResultGRPC.FromString,
+                request_serializer=proto_dot_event__dispatch__pb2.BatchMessageGRPC.SerializeToString,
+                response_deserializer=proto_dot_event__dispatch__pb2.DispatchResultGRPC.FromString,
                 _registered_method=True)
 
 
@@ -55,12 +55,14 @@ def add_EventDispatcherServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'DispatchCardUpdates': grpc.unary_unary_rpc_method_handler(
                     servicer.DispatchCardUpdates,
-                    request_deserializer=event__dispatch__pb2.BatchMessageGRPC.FromString,
-                    response_serializer=event__dispatch__pb2.DispatchResultGRPC.SerializeToString,
+                    request_deserializer=proto_dot_event__dispatch__pb2.BatchMessageGRPC.FromString,
+                    response_serializer=proto_dot_event__dispatch__pb2.DispatchResultGRPC.SerializeToString,
             ),
     }
-    generic_handler = grpc.method_handlers_generic_handler(
-            'EventDispatcher', rpc_method_handlers)
+    # generic_handler = grpc.method_handlers_generic_handler(
+    #         'EventDispatcher', rpc_method_handlers)
+    generic_handler = grpc.ServiceRpcHandler(
+        'EventDispatcher', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
     server.add_registered_method_handlers('EventDispatcher', rpc_method_handlers)
 
@@ -84,8 +86,8 @@ class EventDispatcher(object):
             request,
             target,
             '/EventDispatcher/DispatchCardUpdates',
-            event__dispatch__pb2.BatchMessageGRPC.SerializeToString,
-            event__dispatch__pb2.DispatchResultGRPC.FromString,
+            proto_dot_event__dispatch__pb2.BatchMessageGRPC.SerializeToString,
+            proto_dot_event__dispatch__pb2.DispatchResultGRPC.FromString,
             options,
             channel_credentials,
             insecure,
@@ -106,10 +108,10 @@ class FlashcardToGradeDispatcherStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.DispatchFlashcardToGrade = channel.unary_stream(
+        self.DispatchFlashcardToGrade = channel.unary_unary(
                 '/FlashcardToGradeDispatcher/DispatchFlashcardToGrade',
-                request_serializer=event__dispatch__pb2.FlashcardToGrade.SerializeToString,
-                response_deserializer=event__dispatch__pb2.FlashcardGrade.FromString,
+                request_serializer=proto_dot_event__dispatch__pb2.FlashcardToGrade.SerializeToString,
+                response_deserializer=proto_dot_event__dispatch__pb2.FlashcardGrade.FromString,
                 _registered_method=True)
 
 
@@ -125,14 +127,16 @@ class FlashcardToGradeDispatcherServicer(object):
 
 def add_FlashcardToGradeDispatcherServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'DispatchFlashcardToGrade': grpc.unary_stream_rpc_method_handler(
+            'DispatchFlashcardToGrade': grpc.unary_unary_rpc_method_handler(
                     servicer.DispatchFlashcardToGrade,
-                    request_deserializer=event__dispatch__pb2.FlashcardToGrade.FromString,
-                    response_serializer=event__dispatch__pb2.FlashcardGrade.SerializeToString,
+                    request_deserializer=proto_dot_event__dispatch__pb2.FlashcardToGrade.FromString,
+                    response_serializer=proto_dot_event__dispatch__pb2.FlashcardGrade.SerializeToString,
             ),
     }
-    generic_handler = grpc.method_handlers_generic_handler(
-            'FlashcardToGradeDispatcher', rpc_method_handlers)
+    # generic_handler = grpc.method_handlers_generic_handler(
+    #         'FlashcardToGradeDispatcher', rpc_method_handlers)
+    generic_handler = grpc.ServiceRpcHandler(
+        'FlashcardToGradeDispatcher', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
     server.add_registered_method_handlers('FlashcardToGradeDispatcher', rpc_method_handlers)
 
@@ -152,12 +156,12 @@ class FlashcardToGradeDispatcher(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(
+        return grpc.experimental.unary_unary(
             request,
             target,
             '/FlashcardToGradeDispatcher/DispatchFlashcardToGrade',
-            event__dispatch__pb2.FlashcardToGrade.SerializeToString,
-            event__dispatch__pb2.FlashcardGrade.FromString,
+            proto_dot_event__dispatch__pb2.FlashcardToGrade.SerializeToString,
+            proto_dot_event__dispatch__pb2.FlashcardGrade.FromString,
             options,
             channel_credentials,
             insecure,

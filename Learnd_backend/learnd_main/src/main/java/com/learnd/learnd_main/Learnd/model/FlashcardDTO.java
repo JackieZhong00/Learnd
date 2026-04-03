@@ -41,12 +41,16 @@ public class FlashcardDTO {
         return dateOfNextUsage;
     }
 
-    public void setDateOfNextUsage(LocalDate dateOfNextUsage) {
-        this.dateOfNextUsage = dateOfNextUsage;
+    public LocalDate getCreationDate() {
+        return creationDate;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public boolean isRequiresUserInput() {
+        return requiresUserInput;
+    }
+
+    public int getPreviousTimeInterval() {
+        return previousTimeInterval;
     }
 
     public void setQuestion(String question) {
@@ -57,5 +61,19 @@ public class FlashcardDTO {
         this.answer = answer;
     }
 
+    public void setDateOfNextUsage(LocalDate dateOfNextUsage) {
+        this.dateOfNextUsage = dateOfNextUsage;
+    }
 
+    public void setCreationDate(LocalDate creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public void setRequiresUserInput(boolean requiresUserInput) {
+        this.requiresUserInput = requiresUserInput;
+    }
+
+    public void setPreviousTimeInterval(int previousTimeInterval) {
+        this.previousTimeInterval = previousTimeInterval;
+    }
 }

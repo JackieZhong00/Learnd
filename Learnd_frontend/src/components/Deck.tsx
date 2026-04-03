@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { useEffect, useState, useRef } from 'react'
 import useCreateCardModal from '../hooks/useCreateCardModal'
-import CreateCardModal from './modal_components/CreateFlashCardModal'
+// import CreateCardModal from './modal_components/CreateFlashCardModal'
 import RecommendModal from './modal_components/RecommendModal'
 import logo from '../assets/learnd_logo.png'
 import axios from 'axios'
@@ -9,7 +9,7 @@ import toast, { Toaster } from 'react-hot-toast'
 import CreateFreeResponseCardModal from './modal_components/CreateFreeResponseCardModal'
 import CreateMultipleChioceCardModal from './modal_components/CreateMultipleChioceCardModal'
 import CreateFlashCardModal from './modal_components/CreateFlashCardModal'
-import { set } from 'zod/v4'
+// import { set } from 'zod/v4'
 import {CardSubmitType} from './modal_components/CreateFlashCardModal'
 import useTestModalState from '../hooks/useTestModal'
 import TestModal from './modal_components/TestModal'
@@ -19,7 +19,9 @@ export type FlashcardDTO = {
   question: string
   answer: string
   dateOfNextUsage: Date
+  creationDate : Date
   requiresUserInput: boolean
+  previousTimeInterval: number
 }
 
 export type CardUpdateType = {
@@ -28,11 +30,13 @@ export type CardUpdateType = {
 }
 
 export const emptyFlashcardDTO: FlashcardDTO = {
+  id: 0,
   question: '',
   answer: '',
-  id: 0,
   dateOfNextUsage: new Date(),
-  requiresUserInput: false
+  creationDate : new Date(),
+  requiresUserInput: false,
+  previousTimeInterval: 1
 }
 
 type DeckRenameType = {
@@ -114,7 +118,7 @@ const Deck = () => {
     if (e.key == 'Enter') {
       try {
         const newNameObject: DeckRenameType = { name: tempDeckName as string }
-        console.log('deck id: ' + param.deck_id)
+        // console.log('deck id: ' + param.deck_id)
         await axios.patch(
           `http://localhost:8080/api/deck/rename/${param.deck_id}`,
           newNameObject,
@@ -123,7 +127,7 @@ const Deck = () => {
         setIsEditingName(false)
         setDeckName(tempDeckName)
         toast.success('Deck renamed!')
-        navigate(`/${param.username}/${param.deck_name}/${param.deck_id}`)
+        navigate(`/${param.username}/${param.deck_id}`)
       } catch (error) {
         console.log('failed to rename deck upon pressing enter ')
       }
@@ -216,7 +220,7 @@ const Deck = () => {
     try {
         const cardUpdate : CardUpdateType = {question : questionToDisplay, answer: answerToDisplay}
         const response = await axios.patch(
-          `http://localhost:8080/api/flashcard/updateCard/${toDisplay.id}`,
+          `http://localhost:8080/api/flashcard/updateCard/${param.deck_id}/${toDisplay.id}`,
           cardUpdate,
           { withCredentials: true }
         )

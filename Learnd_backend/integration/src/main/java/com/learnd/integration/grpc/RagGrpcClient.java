@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class RagGrpcClient {
     private final EventDispatcherGrpc.EventDispatcherBlockingStub blockingStub;
-    private final FlashcardToGradeDispatcherGrpc.FlashcardToGradeDispatcherStub flashcardToGradeStub;
+    private final FlashcardToGradeDispatcherGrpc.FlashcardToGradeDispatcherBlockingStub flashcardToGradeStub;
     public RagGrpcClient() {
         ManagedChannel channel = ManagedChannelBuilder
                 .forAddress("localhost", 50051)
@@ -20,7 +20,7 @@ public class RagGrpcClient {
                         .build();
         System.out.println("Grpc Client started on port 50051");
         this.blockingStub = EventDispatcherGrpc.newBlockingStub(channel);
-        this.flashcardToGradeStub = FlashcardToGradeDispatcherGrpc.newStub(channel);
+        this.flashcardToGradeStub = FlashcardToGradeDispatcherGrpc.newBlockingStub(channel);
     }
 
     /** Construct client for accessing RouteGuide server using the existing channel. */
@@ -43,39 +43,14 @@ public class RagGrpcClient {
             throw new RuntimeException("couldn't make grpc call");
         }
     };
-    public CompletableFuture<FlashcardGrade> sendCardToGrade(FlashcardToGrade flashcardToGrade) {
-        CompletableFuture<FlashcardGrade> future = new CompletableFuture<>();
+    public FlashcardGrade sendCardToGrade(FlashcardToGrade flashcardToGrade) {
         try {
-            StreamObserver<FlashcardGrade> responseObserver = new StreamObserver<>() {
-
-                @Override
-                public void onNext(FlashcardGrade value) {
-                    // Called when server responds
-                    System.out.println("Received grade: " + value.getGrade());
-                    future.complete(value);
-                    // You could also update a database, notify another service, etc.
-                }
-
-                @Override
-                public void onError(Throwable t) {
-                    // Called if something goes wrong
-                    System.out.println("ran into error after receiving grade from RAG server\n");
-                    // You can log, retry, or notify the user here
-                }
-
-                @Override
-                public void onCompleted() {
-                    // Called when the server finishes sending responses
-                    System.out.println("gRPC call completed");
-                }
-            };
-            flashcardToGradeStub.dispatchFlashcardToGrade(flashcardToGrade, responseObserver);
+            return flashcardToGradeStub.dispatchFlashcardToGrade(flashcardToGrade);
         } catch (StatusRuntimeException e) {
             System.out.println("couldn't make grpc call");
             System.out.println("exception message: " + e.getMessage());
-            throw new RuntimeException("couldn't make grpc call");
+            throw new RuntimeException("couldn't make grpc call to grade card");
         }
-        return future;
     }
 }
 

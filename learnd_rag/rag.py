@@ -13,8 +13,8 @@ from langchain.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain.output_parsers import PydanticOutputParser
 from pydantic import BaseModel
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
 
 
@@ -24,11 +24,11 @@ os.environ['LANGCHAIN_ENDPOINT'] = "https://api.smith.langchain.com"
 
 def get_cluster_with_deck_id(deck_id):
     connection = psycopg2.connect(
-    dbname="postgres",
+    dbname="pg_db",
     user = os.getenv("postgres_user"),
     password = os.getenv("postgres_password"),
     host="localhost",
-    port=3030
+    port=5431
     )
     # connection = psycopg2.connect(
     # dbname="learnd",
@@ -357,75 +357,59 @@ class RagGraphState(BaseModel):
     cluster_embedding_retriever: BaseRetriever
     hallucinations: List[str] = []
     num_retries: int
-    
 
+# -- initialize workflow for langgraph -- 
+    
+workflow = StateGraph(RagGraphState)
+workflow.add_node("generate_recommendation", generate_recommendation)
+workflow.add_node("retrieve_similar_cards", retrieve_similar_cards)
+workflow.add_node("retrieve_cluster_chunk", retrieve_cluster_chunk)
+workflow.add_node("grade_hallucination", grade_hallucination)
+workflow.add_node("track_hallucination", track_hallucination)
+workflow.add_node("similarity_retry", similarity_retry)
+workflow.add_edge(START,"generate_recommendation")
+workflow.add_conditional_edges(
+    "generate_recommendation",
+    check_num_retries,
+    {
+        "END": END,
+        "retrieve_similar_cards": "retrieve_similar_cards",
+    }
+)
+workflow.add_conditional_edges(
+    "retrieve_similar_cards",
+    compare_to_card_vectors,
+    {
+        "retrieve_cluster_chunk": "retrieve_cluster_chunk",
+        "similarity_retry": "similarity_retry",
+    },
+)
+workflow.add_conditional_edges(
+    "retrieve_cluster_chunk",
+    compare_to_cluster_vectors,
+    {
+        "grade_hallucination": "grade_hallucination",
+        "similarity_retry": "similarity_retry",
+    },
+)
+workflow.add_conditional_edges(
+    "grade_hallucination",
+    find_hallucinations,
+    {
+        "track_hallucination" : "track_hallucination",
+        "END": END,
+    }
+)
+workflow.add_edge("track_hallucination", "generate_recommendation")
+workflow.add_edge("similarity_retry", "generate_recommendation")
+app = workflow.compile()
+
+
+# -- RAG entrypoint function -- 
 def compile_graph(batch_message):
     vector_stores = index(batch_message) #returns dict with keys "card_vectorstore" and "cluster_vectorstore"
-    print("before creating retrievers")
     card_embedding_retriever = vector_stores["card_vectorstore"].as_retriever(search_type="similarity", k=1)
-    print("after creating card retriever")
     cluster_embedding_retriever = vector_stores["cluster_vectorstore"].as_retriever(search_type="similarity", k=1)
-    print("after creating cluster retriever")
-    print("before creating initial state")
-    
-    print("after creating initial state")
-    workflow = StateGraph(RagGraphState)
-    print("before adding nodes")
-    workflow.add_node("generate_recommendation", generate_recommendation)
-    workflow.add_node("retrieve_similar_cards", retrieve_similar_cards)
-    workflow.add_node("retrieve_cluster_chunk", retrieve_cluster_chunk)
-    workflow.add_node("grade_hallucination", grade_hallucination)
-    workflow.add_node("track_hallucination", track_hallucination)
-    workflow.add_node("similarity_retry", similarity_retry)
-    print("after adding nodes")
-
-    print("before adding edges")
-    workflow.add_edge(START,"generate_recommendation")
-    print("after adding start edge")
-
-    workflow.add_conditional_edges(
-        "generate_recommendation",
-        check_num_retries,
-        {
-            "END": END,
-            "retrieve_similar_cards": "retrieve_similar_cards",
-        }
-    )
-    print("after adding generate recommendation check retries conditional edge")
-    workflow.add_conditional_edges(
-        "retrieve_similar_cards",
-        compare_to_card_vectors,
-        {
-            "retrieve_cluster_chunk": "retrieve_cluster_chunk",
-            "similarity_retry": "similarity_retry",
-        },
-    )
-    print("after adding retrieve similar cards edges")
-    workflow.add_conditional_edges(
-        "retrieve_cluster_chunk",
-        compare_to_cluster_vectors,
-        {
-            "grade_hallucination": "grade_hallucination",
-            "similarity_retry": "similarity_retry",
-        },
-    )
-    print("after adding retrieve cluster chunk edges")
-
-    workflow.add_conditional_edges(
-        "grade_hallucination",
-        find_hallucinations,
-        {
-            "track_hallucination" : "track_hallucination",
-            "END": END,
-        }
-    )
-    workflow.add_edge("track_hallucination", "generate_recommendation")
-    workflow.add_edge("similarity_retry", "generate_recommendation")
-    print("about to compile graph")
-    app = workflow.compile()
-    print("compiled graph")
-
-    print("before setting state to run")
     state_to_run = RagGraphState(
         cluster = get_cluster_with_deck_id(batch_message.deckId),                 
         generated_question = "",
@@ -440,7 +424,5 @@ def compile_graph(batch_message):
         hallucinations = [],
         num_retries=0
     )
-    print("after setting state to run")
-    result = list(app.stream(state_to_run))
-    return result[-1]
-
+    result = app.invoke(state_to_run)
+    return result

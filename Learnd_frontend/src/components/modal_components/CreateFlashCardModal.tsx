@@ -25,7 +25,7 @@ const CreateFlashCardModal= () => {
     e.preventDefault() // prevent page refresh
     try {
       const card : CardSubmitType = {question: question, answer: answer, requiresUserInput: requiresUserInput}
-      await axios.post(`http://localhost:8080/api/flashcard/${param.deck_id}/createcard`, card, {withCredentials: true})
+      await axios.post(`http://localhost:8080/api/flashcard/${param.deck_id}`, card, {withCredentials: true})
       setQuestion('')
       setAnswer('')
       setRequiresUserInput(false)
@@ -72,9 +72,20 @@ const CreateFlashCardModal= () => {
               ></textarea>
             </div>
           </div>
-          <button onClick={() => setRequiresUserInput(!requiresUserInput)}>require typed response when tested</button>
+          <div className="flex flex-row gap-[1vw]">
+            <input
+              type="checkbox"
+              id="requiresUserInput"
+              name="requiresUserInput"
+              onChange={() => setRequiresUserInput(!requiresUserInput)}
+              checked={requiresUserInput}
+              className=""
+            />
+            <label htmlFor="requiresUserInput">Require input when tested</label>
+          </div>
+
           <button type="submit" className="cursor-pointer">
-            submit        
+            submit
           </button>
         </div>
       </form>

@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug gRPC RAG Service",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/rag_server.py",
+      "python": "../env/bin/python3",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    }
+  ]
+}
